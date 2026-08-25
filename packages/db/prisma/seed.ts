@@ -145,12 +145,16 @@ const missions: SeedMission[] = [
         },
       },
       // 9. Completion — recap Examples → Patterns → Prediction.
+      // `parentSummary` / `homePrompt` power the parent dashboard's
+      // "What your child learned" and "Try this at home" sections.
       {
         type: "COMPLETION",
         title: "Mission complete!",
         content: {
           heading: "You did it! 🎉",
           body: "You cracked the secret: AI looks at EXAMPLES, finds a PATTERN, and makes a PREDICTION. And remember — AI can make mistakes, so it is smart to check. You are an AI explorer now!",
+          parentSummary: "AI can find patterns in examples and use those patterns to make predictions.",
+          homePrompt: "Can AI make mistakes? Why?",
         },
         xpReward: 30,
       },
@@ -229,6 +233,8 @@ const missions: SeedMission[] = [
         content: {
           heading: "Recommendation expert!",
           body: "Apps recommend things by learning what you like. Now the 'up next' magic makes sense.",
+          parentSummary: "Apps recommend videos and shows by learning from what your child watches and likes.",
+          homePrompt: "Why do you think our app keeps showing us similar videos?",
         },
         xpReward: 30,
       },
@@ -296,6 +302,8 @@ const missions: SeedMission[] = [
         content: {
           heading: "Careful thinker!",
           body: "AI can be wrong. Checking answers keeps you smart and safe.",
+          parentSummary: "AI can be wrong, so it's smart to check important answers against a trusted source.",
+          homePrompt: "How could we check whether something the computer told us is really true?",
         },
         xpReward: 30,
       },
@@ -373,6 +381,8 @@ const missions: SeedMission[] = [
         content: {
           heading: "Algorithm ace!",
           body: "Computers follow clear, ordered steps. You can write algorithms too!",
+          parentSummary: "Computers follow clear, step-by-step instructions (algorithms) in the right order.",
+          homePrompt: "Can you give me exact step-by-step instructions to make a sandwich?",
         },
         xpReward: 30,
       },
@@ -460,6 +470,8 @@ const missions: SeedMission[] = [
         content: {
           heading: "Robot teacher!",
           body: "Robots use data and rules to act. You just taught one!",
+          parentSummary: "Robots use information (data) together with rules to decide what to do.",
+          homePrompt: "What simple rule could we invent for a helpful robot at home?",
         },
         xpReward: 30,
       },
@@ -545,6 +557,8 @@ const missions: SeedMission[] = [
         content: {
           heading: "Amazing work!",
           body: "You designed a real AI idea: problem, user, input, AI, and output. You can build with technology!",
+          parentSummary: "A good AI idea starts with a problem, a user, an input, and a helpful output.",
+          homePrompt: "If you could invent an AI to help people, what problem would it solve?",
         },
         xpReward: 40,
       },

@@ -22,6 +22,8 @@ interface ChildContextValue {
   children: Child[];
   activeChild: Child | null;
   setActiveChild: (child: Child) => void;
+  /** Make a child active by id (e.g. from the parent dashboard). */
+  enterChild: (childId: string) => void;
   clearActiveChild: () => void;
   /** Re-fetch the child list (e.g. after adding a child). */
   refresh: () => Promise<void>;
@@ -78,6 +80,11 @@ export function ChildProvider({ children }: { children: React.ReactNode }) {
     setActiveChildId(child.id);
   }, []);
 
+  const enterChild = React.useCallback((childId: string) => {
+    writeStoredId(childId);
+    setActiveChildId(childId);
+  }, []);
+
   const clearActiveChild = React.useCallback(() => {
     writeStoredId(null);
     setActiveChildId(null);
@@ -96,10 +103,11 @@ export function ChildProvider({ children }: { children: React.ReactNode }) {
       children: list ?? [],
       activeChild,
       setActiveChild,
+      enterChild,
       clearActiveChild,
       refresh,
     }),
-    [status, list, activeChild, setActiveChild, clearActiveChild, refresh],
+    [status, list, activeChild, setActiveChild, enterChild, clearActiveChild, refresh],
   );
 
   return <ChildContext.Provider value={value}>{children}</ChildContext.Provider>;
