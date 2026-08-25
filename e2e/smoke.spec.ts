@@ -1,11 +1,16 @@
 import { test, expect } from "@playwright/test";
 
-/**
- * Placeholder E2E smoke test. Skipped by default so `npm run test:e2e` passes
- * without a running dev server or installed browsers. Un-skip once the app has
- * real pages to exercise (and after `npx playwright install`).
- */
-test.skip("home page shows the TechQuest brand", async ({ page }) => {
+/** The public landing page renders and offers the primary signup CTA. */
+test("landing page shows the value proposition and a signup CTA", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: /techquest/i })).toBeVisible();
+
+  await expect(
+    page.getByRole("heading", { name: /become ai-ready by learning through play and building/i }),
+  ).toBeVisible();
+
+  // Primary CTA leads to signup.
+  const tryCta = page.getByRole("link", { name: /try techquest/i }).first();
+  await expect(tryCta).toBeVisible();
+  await tryCta.click();
+  await expect(page).toHaveURL(/\/signup/);
 });

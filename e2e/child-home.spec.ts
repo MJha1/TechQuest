@@ -12,10 +12,11 @@ test("child home shows greeting, rewards, mission and Start Mission", async ({ p
   await expect(page.getByText(/today's mission/i)).toBeVisible();
   await expect(page.getByRole("button", { name: /start mission/i })).toBeVisible();
 
-  // Rewards: XP, level, streak, badges (all present, kid-friendly).
-  await expect(page.getByText(/\bXP\b/).first()).toBeVisible();
-  await expect(page.getByText(/level/i).first()).toBeVisible();
-  await expect(page.getByText(/badges/i).first()).toBeVisible();
+  // Rewards live in the right rail at the desktop target width (the inline copy
+  // is an xl:hidden duplicate); scope to the rewards <aside> to hit the visible one.
+  const rewards = page.locator("aside").filter({ hasText: /badges/i });
+  await expect(rewards.getByText(/\bXP\b/i).first()).toBeVisible();
+  await expect(rewards.getByText(/badges/i)).toBeVisible();
 
   // Progress summary.
   await expect(page.getByText(/missions complete/i)).toBeVisible();

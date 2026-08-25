@@ -17,7 +17,7 @@ test("a parent can log in and reach their dashboard", async ({ page, context }) 
   await page.getByRole("button", { name: /log in/i }).click();
 
   await expect(page).toHaveURL(/\/parent/);
-  await expect(page.getByText(/your learners/i)).toBeVisible();
+  await expect(page.getByText(/overview of your learner/i)).toBeVisible();
 });
 
 test("bad credentials show a friendly message, not a technical error", async ({ page }) => {
