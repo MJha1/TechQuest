@@ -36,92 +36,121 @@ const missions: SeedMission[] = [
     subtitle: "Examples, patterns, and smart guesses",
     concept: "Examples → Patterns → Prediction",
     description:
-      "Discover how an AI learns from examples, spots patterns, and then makes a prediction.",
+      "Discover how an AI learns from examples, spots a pattern, and uses it to make a prediction — and why it can still make mistakes.",
     order: 1,
-    estimatedMinutes: 8,
+    estimatedMinutes: 9,
     steps: [
+      // 1. Introduction — set up the big idea (AI is not a human brain).
       {
         type: "INTRO",
         title: "Meet a learning machine",
         content: {
           heading: "How does AI learn?",
-          body: "AI does not know things the way you do. It learns by looking at lots of examples until it spots a pattern.",
+          body: "AI is a clever computer helper. It does not think the way you do. Instead, it learns by looking at LOTS of examples until it notices a pattern. Ready to see how? Let's go!",
         },
       },
+      // 2. What does AI do?
       {
         type: "CHOICE",
-        title: "What is an example?",
+        title: "What does AI do?",
         content: {
-          prompt: "You want an AI to know what a cat looks like. What helps it learn best?",
+          prompt: "Which sentence describes AI the best?",
           options: [
-            { id: "a", label: "One blurry photo", correct: false },
-            { id: "b", label: "Hundreds of cat photos", correct: true },
-            { id: "c", label: "A drawing of a dog", correct: false },
+            { id: "a", label: "It is born already knowing everything.", correct: false },
+            { id: "b", label: "It learns from examples and spots patterns.", correct: true },
+            { id: "c", label: "It just guesses, with no help at all.", correct: false },
           ],
-          explanation: "More good examples give the AI more chances to find the pattern.",
+          explanation: "Nice! AI learns from examples and looks for patterns. Then it uses them to help.",
         },
       },
+      // 3. Pattern example — Examples → Patterns.
       {
         type: "DRAG_DROP",
         title: "Find the pattern",
         content: {
-          prompt: "Drag each picture into the right group.",
+          prompt: "Show the AI some examples. Put each photo in the right group so it can learn the pattern.",
           items: [
-            { id: "1", label: "🐱 cat" },
-            { id: "2", label: "🐶 dog" },
-            { id: "3", label: "🐱 cat" },
-            { id: "4", label: "🐶 dog" },
+            { id: "1", label: "🐱 pointy ears, whiskers" },
+            { id: "2", label: "🐶 floppy ears, waggy tail" },
+            { id: "3", label: "🐱 pointy ears, whiskers" },
+            { id: "4", label: "🐶 floppy ears, waggy tail" },
           ],
           targets: [
             { id: "cats", label: "Cats" },
             { id: "dogs", label: "Dogs" },
           ],
           solution: { "1": "cats", "2": "dogs", "3": "cats", "4": "dogs" },
+          explanation: "Great sorting! The AI can now see the pattern: pointy ears and whiskers means cat.",
         },
       },
+      // 4. Prediction activity — Patterns → Prediction.
       {
         type: "PREDICTION",
         title: "Make a prediction",
         content: {
-          prompt: "The AI has learned the cat pattern. It sees a new photo with pointy ears and whiskers. What will it guess?",
+          prompt: "The AI learned the cat pattern. Now it sees a BRAND NEW photo with pointy ears and whiskers. What will it predict?",
           options: [
             { id: "a", label: "Cat", correct: true },
             { id: "b", label: "Car", correct: false },
           ],
-          reveal: "It predicts 'cat' — because the new photo matches the pattern it learned.",
+          reveal: "It predicts 'cat' — because the new photo matches the pattern it learned. That is a prediction!",
         },
       },
+      // 5. More examples — why more data helps.
       {
-        type: "QUESTION",
-        title: "In your words",
+        type: "CHOICE",
+        title: "More examples, please!",
         content: {
-          prompt: "What did the AI use to learn the cat pattern?",
-          sampleAnswer: "Lots of example photos of cats.",
+          prompt: "You want the AI to get REALLY good at spotting cats. What helps it most?",
+          options: [
+            { id: "a", label: "Just one photo", correct: false },
+            { id: "b", label: "Lots and lots of cat photos", correct: true },
+            { id: "c", label: "A photo of a sandwich", correct: false },
+          ],
+          explanation: "Exactly! More good examples give the AI more chances to learn the pattern well.",
         },
       },
+      // 6. AI can make mistakes — and how to respond.
+      {
+        type: "CHOICE",
+        title: "Can AI be wrong?",
+        content: {
+          prompt: "AI is helpful, but it is not perfect and it can make mistakes. What is the smart thing to do if its answer seems wrong?",
+          options: [
+            { id: "a", label: "Believe it no matter what", correct: false },
+            { id: "b", label: "Check with a grown-up or a book you trust", correct: true },
+            { id: "c", label: "Never use a computer again", correct: false },
+          ],
+          explanation: "Smart thinkers double-check! AI can make mistakes, so it is good to check tricky answers.",
+        },
+      },
+      // 7. Mini challenge — apply Examples yourself.
       {
         type: "CHALLENGE",
         title: "Teach it yourself",
         content: {
-          task: "Pick three examples you would show an AI to teach it what a 'ball' is.",
-          successCriteria: "Any three round, ball-like things count.",
+          task: "Imagine you are teaching an AI what a DOG looks like. Type three examples you would show it.",
+          placeholder: "For example: a puppy, a big fluffy dog, a dog running in the park",
+          successCriteria: "Any three dog-like examples are perfect — great teaching!",
         },
         xpReward: 20,
       },
+      // 8. Reflection.
       {
         type: "REFLECTION",
         title: "Think about it",
         content: {
-          prompt: "What is one thing you could teach an AI using examples?",
-          placeholder: "I could teach an AI to...",
+          prompt: "What is one thing YOU would teach an AI using examples?",
+          placeholder: "I would teach an AI to...",
         },
       },
+      // 9. Completion — recap Examples → Patterns → Prediction.
       {
         type: "COMPLETION",
         title: "Mission complete!",
         content: {
-          heading: "You did it!",
-          body: "AI learns from examples, finds patterns, and makes predictions. Now you know the secret!",
+          heading: "You did it! 🎉",
+          body: "You cracked the secret: AI looks at EXAMPLES, finds a PATTERN, and makes a PREDICTION. And remember — AI can make mistakes, so it is smart to check. You are an AI explorer now!",
         },
         xpReward: 30,
       },
