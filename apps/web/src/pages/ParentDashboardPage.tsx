@@ -5,6 +5,7 @@ import type { ParentChildDashboard, ParentDashboard } from "@techquest/shared";
 import { useChildContext } from "@/context/ChildContext";
 import { parentNav } from "@/lib/nav";
 import { getParentDashboard } from "@/lib/api";
+import { track } from "@/lib/analytics";
 import { AppShell } from "@/components/layout/AppShell";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -193,6 +194,7 @@ export default function ParentDashboardPage() {
       .catch(() => setError(true));
   }
   useEffect(load, []);
+  useEffect(() => track("parent_dashboard_viewed"), []);
 
   function enter(childId: string) {
     enterChild(childId);

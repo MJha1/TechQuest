@@ -1,7 +1,9 @@
+import { useEffect } from "react";
 import { Navigate, Outlet } from "react-router-dom";
 import { useSession } from "@/lib/auth-client";
 import { ChildProvider } from "@/context/ChildContext";
 import { LoadingState } from "@/components/ui/loading-state";
+import { identifyParent } from "@/lib/analytics";
 
 /**
  * Layout-route guard for every authenticated (parent) route. Redirects to login
@@ -14,6 +16,12 @@ import { LoadingState } from "@/components/ui/loading-state";
  */
 export default function RequireParent() {
   const { data, isPending } = useSession();
+
+  // Identify the parent by their pseudonymous account id (never email/name).
+  const userId = data?.user?.id;
+  useEffect(() => {
+    if (userId) identifyParent(userId);
+  }, [userId]);
 
   if (isPending) {
     return (

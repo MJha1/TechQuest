@@ -390,6 +390,7 @@ export async function completeMission(
     const child = await prisma.child.findFirst({ where: { id: childId } });
     return {
       status: "COMPLETED",
+      missionSlug: mission.slug,
       score: cm.score ?? 0,
       completedAt: iso(cm.completedAt),
       xpAwarded: 0,
@@ -424,6 +425,7 @@ export async function completeMission(
 
   return {
     status: "COMPLETED",
+    missionSlug: mission.slug,
     score,
     completedAt: iso(updatedCm.completedAt),
     xpAwarded: XP_MISSION_COMPLETE,

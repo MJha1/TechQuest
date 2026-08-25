@@ -1,8 +1,9 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ParentCredentialsSchema } from "@techquest/shared";
 import { signUp } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
+import { track } from "@/lib/analytics";
 
 /**
  * Parent signup. Collects only what an account needs — email + password. No
@@ -15,6 +16,8 @@ export default function SignupPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => track("signup_started"), []);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -30,7 +33,7 @@ export default function SignupPage() {
     // Derive a display name from the email local-part so we don't collect a
     // separate real name.
     const name = parsed.data.email.split("@")[0] || "Parent";
-    const { error: authError } = await signUp.email({
+    const { data, error: authError } = await signUp.email({
       email: parsed.data.email,
       password: parsed.data.password,
       name,
@@ -41,6 +44,8 @@ export default function SignupPage() {
       setError(authError.message ?? "Could not create your account");
       return;
     }
+    // Pseudonymous account id only — never the email.
+    track("signup_completed", { userRef: data?.user?.id ?? "unknown" });
     navigate("/create-child");
   }
 

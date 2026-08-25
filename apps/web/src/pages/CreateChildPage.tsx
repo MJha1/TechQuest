@@ -2,6 +2,7 @@ import { useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { CreateChildSchema, type AgeBand } from "@techquest/shared";
 import { createChild, ApiRequestError } from "@/lib/api";
+import { track } from "@/lib/analytics";
 import { Button } from "@/components/ui/button";
 
 /**
@@ -36,7 +37,9 @@ export default function CreateChildPage() {
 
     setSubmitting(true);
     try {
-      await createChild(parsed.data);
+      const created = await createChild(parsed.data);
+      // Pseudonymous child id + coarse age band only — never the nickname.
+      track("child_created", { childRef: created.id, ageBand: created.ageBand });
       navigate("/parent");
     } catch (err) {
       setError(

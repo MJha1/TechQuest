@@ -5,6 +5,7 @@ import type { CompleteResult } from "@techquest/shared";
 import { useChildContext } from "@/context/ChildContext";
 import { childNav } from "@/lib/nav";
 import { completeMission } from "@/lib/api";
+import { track } from "@/lib/analytics";
 import { AppShell } from "@/components/layout/AppShell";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -28,6 +29,17 @@ export default function MissionCompletePage() {
     completeMission(missionId!, child.id)
       .then((r) => {
         if (active) setResult(r);
+        // Fire once — completion is idempotent, so skip when already recorded.
+        if (!r.alreadyCompleted) {
+          track("mission_completed", {
+            childRef: child.id,
+            missionSlug: r.missionSlug,
+            score: r.score,
+          });
+          for (const badgeSlug of r.badges) {
+            track("badge_earned", { childRef: child.id, badgeSlug });
+          }
+        }
         void refresh(); // keep parent-side child totals fresh
       })
       .catch(() => {

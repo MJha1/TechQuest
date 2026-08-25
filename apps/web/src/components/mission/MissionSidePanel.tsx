@@ -17,6 +17,7 @@ export function MissionSidePanel({
   currentStepId,
   doneStepIds,
   hint,
+  onShowHint,
 }: {
   concept: string;
   subtitle: string | null;
@@ -24,6 +25,8 @@ export function MissionSidePanel({
   currentStepId: string;
   doneStepIds: Set<string>;
   hint: string;
+  /** Called when the child reveals the hint (for analytics). */
+  onShowHint?: () => void;
 }) {
   const [showHint, setShowHint] = useState(false);
 
@@ -77,7 +80,14 @@ export function MissionSidePanel({
             {hint}
           </p>
         ) : (
-          <Button variant="outline" size="sm" onClick={() => setShowHint(true)}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              setShowHint(true);
+              onShowHint?.();
+            }}
+          >
             <Lightbulb className="size-4" /> Show a hint
           </Button>
         )}

@@ -81,6 +81,8 @@ export interface AnswerResult {
 /** Result of completing a mission (idempotent). */
 export interface CompleteResult {
   status: MissionStatus;
+  /** Mission slug (stable, non-identifying) — handy for analytics. */
+  missionSlug: string;
   score: number;
   completedAt: string | null;
   /** XP awarded by this call (0 when the mission was already complete). */

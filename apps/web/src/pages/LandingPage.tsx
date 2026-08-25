@@ -1,12 +1,16 @@
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { APP_NAME } from "@techquest/shared";
 import { buttonVariants } from "@/components/ui/button";
+import { track } from "@/lib/analytics";
 
 /**
  * Public landing page — the front door of the parent journey:
  * Landing → Signup → Create Child → Child Home.
  */
 export default function LandingPage() {
+  useEffect(() => track("landing_viewed"), []);
+
   return (
     <main className="min-h-screen flex flex-col items-center justify-center gap-8 p-8 text-center">
       <div className="space-y-4 max-w-xl">

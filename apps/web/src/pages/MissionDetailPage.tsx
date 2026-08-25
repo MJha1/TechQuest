@@ -4,6 +4,7 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 import type { AnswerResult, ChildMissionState } from "@techquest/shared";
 import { useChildContext } from "@/context/ChildContext";
 import { startMission, answerStep } from "@/lib/api";
+import { track } from "@/lib/analytics";
 import { Button } from "@/components/ui/button";
 import { LoadingState } from "@/components/ui/loading-state";
 import { ErrorState } from "@/components/ui/error-state";
@@ -59,11 +60,21 @@ export default function MissionDetailPage() {
         setIndex(first === -1 ? 0 : first);
         setValue(initialResponse());
         setResult(null);
+        track("mission_started", { childRef: child.id, missionSlug: s.mission.slug });
       })
       .catch(() => setError(true));
   }
 
   useEffect(load, [missionId, child.id]);
+
+  // Fire challenge_started when a challenge step becomes current.
+  const currentStep = state?.mission.steps[index];
+  const currentSlug = state?.mission.slug;
+  useEffect(() => {
+    if (currentStep?.type === "CHALLENGE" && currentSlug) {
+      track("challenge_started", { childRef: child.id, missionSlug: currentSlug });
+    }
+  }, [currentStep?.id, currentStep?.type, currentSlug, child.id]);
 
   if (error) {
     return (
@@ -99,6 +110,17 @@ export default function MissionDetailPage() {
       const res = await answerStep(missionId!, step.id, child.id, response);
       setXp(res.child.xp);
       setLevel(res.child.level);
+      const missionSlug = state!.mission.slug;
+      if (step.type === "CHALLENGE") {
+        track("challenge_completed", { childRef: child.id, missionSlug });
+      } else if (step.type !== "INTRO" && step.type !== "COMPLETION") {
+        track("question_answered", {
+          childRef: child.id,
+          missionSlug,
+          stepType: step.type,
+          correct: res.correct,
+        });
+      }
       return res;
     } catch {
       setError(true);
@@ -180,6 +202,13 @@ export default function MissionDetailPage() {
           currentStepId={step.id}
           doneStepIds={doneStepIds}
           hint={meta.hint}
+          onShowHint={() =>
+            track("hint_requested", {
+              childRef: child.id,
+              missionSlug: state.mission.slug,
+              stepType: step.type,
+            })
+          }
         />
       }
       footer={footer}

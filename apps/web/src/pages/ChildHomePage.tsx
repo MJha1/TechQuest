@@ -5,6 +5,7 @@ import type { BadgeStatus, ChildMissionSummary } from "@techquest/shared";
 import { useChildContext } from "@/context/ChildContext";
 import { childNav } from "@/lib/nav";
 import { listChildBadges, listChildMissions } from "@/lib/api";
+import { track } from "@/lib/analytics";
 import { AppShell } from "@/components/layout/AppShell";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -67,6 +68,7 @@ export default function ChildHomePage() {
   }
 
   useEffect(load, [child.id]);
+  useEffect(() => track("child_home_viewed", { childRef: child.id }), [child.id]);
 
   const todays = useMemo(() => (missions ? pickTodaysMission(missions) : null), [missions]);
   const recommended = useMemo(

@@ -4,6 +4,7 @@ import type { ChildMissionSummary } from "@techquest/shared";
 import { useChildContext } from "@/context/ChildContext";
 import { childNav } from "@/lib/nav";
 import { listChildMissions } from "@/lib/api";
+import { track } from "@/lib/analytics";
 import { AppShell } from "@/components/layout/AppShell";
 import { MissionCard, type MissionCardStatus } from "@/components/MissionCard";
 import { XPDisplay } from "@/components/XPDisplay";
@@ -69,7 +70,10 @@ export default function MissionsPage() {
                   status={status}
                   progress={progress}
                   estimatedMinutes={m.mission.estimatedMinutes}
-                  onAction={() => navigate(`/missions/${m.mission.id}`)}
+                  onAction={() => {
+                    track("mission_viewed", { missionSlug: m.mission.slug });
+                    navigate(`/missions/${m.mission.id}`);
+                  }}
                 />
               );
             })}
