@@ -34,6 +34,7 @@ export type AnalyticsCategory =
 export interface EventPropertyMap {
   // Acquisition
   landing_viewed: Record<string, never>;
+  cta_clicked: { cta: string };
   signup_started: Record<string, never>;
   signup_completed: { userRef: string };
   // Activation
@@ -66,6 +67,7 @@ export type AnalyticsEvent = keyof EventPropertyMap;
 /** Each event's product-analytics category. */
 export const EVENT_CATEGORY: Record<AnalyticsEvent, AnalyticsCategory> = {
   landing_viewed: "Acquisition",
+  cta_clicked: "Acquisition",
   signup_started: "Acquisition",
   signup_completed: "Acquisition",
   child_created: "Activation",

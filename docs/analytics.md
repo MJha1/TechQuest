@@ -32,6 +32,7 @@ Every event automatically carries a `category` property (below).
 | Event | Trigger | Properties | Purpose |
 |---|---|---|---|
 | `landing_viewed` | Landing page mounts | — | Top-of-funnel traffic. |
+| `cta_clicked` | A landing-page CTA is clicked | `cta` (which button) | CTA effectiveness across the page. |
 | `signup_started` | Signup page mounts | — | Signup funnel entry; measure drop-off before submit. |
 | `signup_completed` | Parent account created successfully | `userRef` | Conversion to account; anchors the acquisition funnel. |
 
