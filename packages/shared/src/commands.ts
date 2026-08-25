@@ -14,6 +14,22 @@ const cuid = z.string().cuid();
 const nickname = z.string().trim().min(2).max(20);
 const avatar = z.string().trim().max(64);
 
+// ── Parent product feedback ───────────────────────────────────────────────────
+
+/** The four simple ratings a parent can give. */
+export const ParentFeedbackRating = z.enum(["loved_it", "good", "okay", "not_useful"]);
+export type ParentFeedbackRating = z.infer<typeof ParentFeedbackRating>;
+
+// A rating plus an optional "what should we improve?" comment. Nothing else is
+// collected — the parent id + timestamp come from the request/DB, not the body.
+export const ParentFeedbackSchema = z
+  .object({
+    rating: ParentFeedbackRating,
+    comment: z.string().trim().max(500).optional(),
+  })
+  .strict();
+export type ParentFeedbackInput = z.infer<typeof ParentFeedbackSchema>;
+
 // ── Parent account (auth) ─────────────────────────────────────────────────────
 
 // Credentials for parent signup/login. The API delegates auth to Better Auth;

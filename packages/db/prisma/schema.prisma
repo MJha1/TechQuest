@@ -102,6 +102,7 @@ model User {
   sessions Session[]
   accounts Account[]
   children Child[]
+  feedback ParentFeedback[]
 
   @@map("user")
 }
@@ -333,6 +334,20 @@ model LearningEvent {
   @@index([createdAt])
   @@index([childId, createdAt])
   @@map("learning_event")
+}
+
+// Parent product feedback (a rating + optional comment). Minimal by design —
+// only the rating, an optional free-text comment, and who/when. No extra PII.
+model ParentFeedback {
+  id        String   @id @default(cuid())
+  parentId  String
+  parent    User     @relation(fields: [parentId], references: [id], onDelete: Cascade)
+  rating    String // one of: loved_it | good | okay | not_useful (validated at the app layer)
+  comment   String? // optional "what should we improve?"
+  createdAt DateTime @default(now())
+
+  @@index([parentId])
+  @@map("parent_feedback")
 }
 
 model Feedback {

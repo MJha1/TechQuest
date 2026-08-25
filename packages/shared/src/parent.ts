@@ -56,3 +56,11 @@ export interface ParentChildDashboard {
 export interface ParentDashboard {
   children: ParentChildDashboard[];
 }
+
+/** Stored parent feedback (returned from POST /api/feedback). */
+export interface ParentFeedbackResult {
+  id: string;
+  rating: string;
+  comment: string | null;
+  createdAt: string;
+}

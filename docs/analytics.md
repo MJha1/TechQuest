@@ -71,7 +71,7 @@ Every event automatically carries a `category` property (below).
 |---|---|---|---|
 | `parent_dashboard_viewed` | Parent dashboard mounts | — | Parent engagement with progress reporting. |
 | `progress_viewed` | Parent progress page mounts | — | Interest in detailed progress. |
-| `feedback_submitted` | Parent submits feedback | `childRef`, `topic` | Parent-value signal. *(Defined and enforced by the abstraction; wired once the feedback feature ships.)* |
+| `feedback_submitted` | Parent submits product feedback | `rating`, `hasComment` | Parent satisfaction (no comment text is sent — only the rating and whether a comment was left). |
 
 ## Where events fire
 

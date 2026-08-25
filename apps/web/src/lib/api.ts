@@ -14,6 +14,7 @@ import type {
   HintResult,
   ActivityInfo,
   ActivityResult,
+  ParentFeedbackResult,
 } from "@techquest/shared";
 import { API_BASE } from "./config";
 
@@ -108,6 +109,13 @@ export const runAiActivity = (
     method: "POST",
     body: JSON.stringify(input),
   });
+
+/** Submit parent product feedback (a rating + optional comment). */
+export const submitFeedback = (input: {
+  rating: string;
+  comment?: string;
+}): Promise<ParentFeedbackResult> =>
+  request<ParentFeedbackResult>("/api/feedback", { method: "POST", body: JSON.stringify(input) });
 
 /** Start or resume a mission for a child. */
 export const startMission = (missionId: string, childId: string): Promise<ChildMissionState> =>

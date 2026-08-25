@@ -58,7 +58,7 @@ export interface EventPropertyMap {
   // Parent Value
   parent_dashboard_viewed: Record<string, never>;
   progress_viewed: Record<string, never>;
-  feedback_submitted: { childRef: string; topic: string };
+  feedback_submitted: { rating: string; hasComment: boolean };
 }
 
 export type AnalyticsEvent = keyof EventPropertyMap;
