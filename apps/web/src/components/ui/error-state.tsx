@@ -3,6 +3,16 @@ import { AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "./button";
 
+/**
+ * The single, standard child-facing error message. Kids never see technical
+ * detail — every failure in the child experience (network, server, missing
+ * mission, timeout, …) shows exactly this, with a Try-again action.
+ */
+export const CHILD_ERROR = {
+  title: "Oops! Something went wrong.",
+  description: "Let's try again.",
+} as const;
+
 /** Friendly, non-alarming error surface with an optional retry action. */
 export function ErrorState({
   title = "Something went wrong",

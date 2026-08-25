@@ -19,7 +19,7 @@ import type {
 } from "@techquest/shared";
 import { API_BASE } from "./config";
 
-/** Error carrying the API's machine-readable failure code. */
+/** Error carrying a safe, machine-readable failure code. Never wraps a raw error. */
 export class ApiRequestError extends Error {
   constructor(
     public readonly code: string,
@@ -31,22 +31,65 @@ export class ApiRequestError extends Error {
 }
 
 /**
+ * Handler invoked once when a request comes back unauthorized (session expired
+ * or missing). The app registers one that sends the parent to /login. Kept as a
+ * module-level hook so this non-React module can react without importing the
+ * router (which would create an import cycle).
+ */
+let onUnauthorized: (() => void) | null = null;
+export function setUnauthorizedHandler(fn: (() => void) | null): void {
+  onUnauthorized = fn;
+}
+
+/**
  * Thin JSON fetch wrapper around the shared response envelope. Sends cookies so
- * the Better Auth session travels with every request, and unwraps `{ ok, data }`
- * — throwing an `ApiRequestError` on a failure envelope.
+ * the Better Auth session travels with every request, and unwraps `{ ok, data }`.
+ *
+ * Every failure path resolves to an `ApiRequestError` with a safe message — a
+ * network drop, a non-JSON response (a proxy/gateway error page), a 401, or a
+ * `{ ok: false }` envelope. Raw fetch/JSON errors, statuses, stack traces, and
+ * server internals are never surfaced to the caller (or the UI).
  */
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`${API_BASE}${path}`, {
-    credentials: "include",
-    ...init,
-    headers: {
-      "Content-Type": "application/json",
-      ...(init?.headers ?? {}),
-    },
-  });
+  let res: Response;
+  try {
+    res = await fetch(`${API_BASE}${path}`, {
+      credentials: "include",
+      ...init,
+      headers: {
+        "Content-Type": "application/json",
+        ...(init?.headers ?? {}),
+      },
+    });
+  } catch {
+    // Offline, DNS failure, connection reset, request aborted — no server reply.
+    throw new ApiRequestError(
+      "NETWORK",
+      "We couldn't reach TechQuest. Please check your connection and try again.",
+    );
+  }
 
-  const body = (await res.json()) as ApiResponse<T>;
+  // A structured envelope is expected; a proxy/gateway may return HTML instead.
+  let body: ApiResponse<T> | null = null;
+  try {
+    body = (await res.json()) as ApiResponse<T>;
+  } catch {
+    body = null;
+  }
+
+  // Session expiry / missing session: notify the app (→ redirect to login) once.
+  if (res.status === 401 || (body && !body.ok && body.error.code === "UNAUTHORIZED")) {
+    onUnauthorized?.();
+    throw new ApiRequestError("UNAUTHORIZED", "Your session has ended. Please log in again.");
+  }
+
+  if (!body) {
+    // Unparseable response (e.g. a 5xx gateway page). Map by status; leak nothing.
+    throw new ApiRequestError("SERVER", "Something went wrong on our end. Please try again.");
+  }
+
   if (!body.ok) {
+    // Backend error messages are already sanitized (500s are generic server-side).
     throw new ApiRequestError(body.error.code, body.error.message);
   }
   return body.data;

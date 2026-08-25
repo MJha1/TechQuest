@@ -10,7 +10,7 @@ import { MissionCard, type MissionCardStatus } from "@/components/MissionCard";
 import { XPDisplay } from "@/components/XPDisplay";
 import { StreakDisplay } from "@/components/StreakDisplay";
 import { LoadingState } from "@/components/ui/loading-state";
-import { ErrorState } from "@/components/ui/error-state";
+import { ErrorState, CHILD_ERROR } from "@/components/ui/error-state";
 
 /** Map server progress to the presentational MissionCard status. */
 function statusOf(summary: ChildMissionSummary): MissionCardStatus {
@@ -55,7 +55,9 @@ export default function MissionsPage() {
     >
       <div className="mx-auto max-w-5xl">
         {missions === null && !error && <LoadingState label="Loading missions…" />}
-        {error && <ErrorState onRetry={load} />}
+        {error && (
+          <ErrorState title={CHILD_ERROR.title} description={CHILD_ERROR.description} onRetry={load} />
+        )}
         {missions && (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {missions.map((m) => {

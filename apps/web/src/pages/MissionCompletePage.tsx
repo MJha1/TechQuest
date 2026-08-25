@@ -12,7 +12,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { XPDisplay } from "@/components/XPDisplay";
 import { LoadingState } from "@/components/ui/loading-state";
-import { ErrorState } from "@/components/ui/error-state";
+import { ErrorState, CHILD_ERROR } from "@/components/ui/error-state";
 
 /** Humanize a badge slug for display (e.g. "first-explorer" → "First Explorer"). */
 function badgeLabel(slug: string): string {
@@ -70,8 +70,8 @@ export default function MissionCompletePage() {
       <div className="mx-auto max-w-md">
         {error ? (
           <ErrorState
-            title="We couldn't wrap up your mission"
-            description="Your progress is saved. Let's try again."
+            title={CHILD_ERROR.title}
+            description={CHILD_ERROR.description}
             onRetry={() => setAttempt((a) => a + 1)}
           />
         ) : !result ? (

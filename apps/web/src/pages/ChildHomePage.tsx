@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { LoadingState } from "@/components/ui/loading-state";
-import { ErrorState } from "@/components/ui/error-state";
+import { ErrorState, CHILD_ERROR } from "@/components/ui/error-state";
 import { XPDisplay } from "@/components/XPDisplay";
 import { StreakDisplay } from "@/components/StreakDisplay";
 
@@ -142,8 +142,8 @@ export default function ChildHomePage() {
       <div className="mx-auto max-w-3xl space-y-6">
         {error && (
           <ErrorState
-            title="We couldn't load your dashboard"
-            description="Let's give it another try."
+            title={CHILD_ERROR.title}
+            description={CHILD_ERROR.description}
             onRetry={load}
           />
         )}

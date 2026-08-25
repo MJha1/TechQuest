@@ -90,7 +90,7 @@ describe("MissionDetailPage (mission player)", () => {
     startMock.mockRejectedValueOnce(new Error("boom")).mockResolvedValueOnce(STATE);
     renderPage();
 
-    expect(await screen.findByText(/couldn't start this mission/i)).toBeInTheDocument();
+    expect(await screen.findByText(/oops! something went wrong/i)).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /try again/i }));
 
     expect(await screen.findByRole("heading", { name: "Pick one" })).toBeInTheDocument();

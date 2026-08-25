@@ -117,8 +117,8 @@ describe("ChildHomePage dashboard", () => {
     listBadgesMock.mockResolvedValue(BADGES);
     renderPage();
 
-    expect(await screen.findByText(/couldn't load your dashboard/i)).toBeInTheDocument();
-    // The raw error text must never reach the child.
+    // The standard, kid-safe error message — never a technical detail.
+    expect(await screen.findByText(/oops! something went wrong/i)).toBeInTheDocument();
     expect(screen.queryByText(/status 500/i)).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: /try again/i })).toBeInTheDocument();
   });

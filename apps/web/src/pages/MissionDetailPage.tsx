@@ -7,7 +7,7 @@ import { startMission, answerStep, requestHint } from "@/lib/api";
 import { track } from "@/lib/analytics";
 import { Button } from "@/components/ui/button";
 import { LoadingState } from "@/components/ui/loading-state";
-import { ErrorState } from "@/components/ui/error-state";
+import { ErrorState, CHILD_ERROR } from "@/components/ui/error-state";
 import { MissionPlayerLayout } from "@/components/mission/MissionPlayerLayout";
 import { MissionSidePanel } from "@/components/mission/MissionSidePanel";
 import {
@@ -91,7 +91,8 @@ export default function MissionDetailPage() {
     return (
       <CenteredFrame>
         <ErrorState
-          title="We couldn't start this mission"
+          title={CHILD_ERROR.title}
+          description={CHILD_ERROR.description}
           onRetry={load}
         />
       </CenteredFrame>
