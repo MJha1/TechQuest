@@ -1,0 +1,358 @@
+// TechQuest data model.
+//
+// Design notes:
+// - Parents are the only authenticated users (Better Auth owns User/Session/
+//   Account/Verification). Children are managed *profiles* under a parent, not
+//   auth accounts — this minimizes children's PII by design (COPPA / GDPR-K).
+// - Child stores only the minimum: a nickname (not a real name), a coarse age
+//   band, a preset avatar id, and gameplay counters. No name/address/school/
+//   phone/precise-location is collected anywhere in this schema.
+// - Content (Mission/MissionStep) is seeded data rendered by a generic engine.
+// - Progress is tracked per child (ChildMission / ChildMissionStep).
+// - LearningEvent is append-only analytics; Feedback audits bounded AI output.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  // Direct (non-pooled) connection used for migrations. On Neon set this to the
+  // direct connection string; locally it can equal DATABASE_URL.
+  directUrl = env("DIRECT_URL")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Enums
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// Coarse age bands (kept coarse on purpose to reduce identifying granularity).
+enum AgeBand {
+  AGE_8_9
+  AGE_10_12
+}
+
+/// Interaction types a mission step can render.
+enum MissionStepType {
+  INTRO
+  QUESTION
+  CHOICE
+  DRAG_DROP
+  PREDICTION
+  CHALLENGE
+  REFLECTION
+  COMPLETION
+}
+
+/// A child's progress state for a whole mission.
+enum MissionStatus {
+  LOCKED
+  IN_PROGRESS
+  COMPLETED
+}
+
+/// A child's progress state for a single step.
+enum StepStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+}
+
+/// Append-only learning/analytics events.
+enum LearningEventType {
+  MISSION_STARTED
+  STEP_STARTED
+  STEP_COMPLETED
+  MISSION_COMPLETED
+  XP_AWARDED
+  LEVEL_UP
+  BADGE_EARNED
+  STREAK_EXTENDED
+  AI_FEEDBACK_SERVED
+}
+
+/// What a piece of AI feedback was for.
+enum FeedbackKind {
+  ANSWER_FEEDBACK
+  MISSION_IDEA
+  ENCOURAGEMENT
+}
+
+/// Server-side safety verdict recorded for every AI response.
+enum SafetyVerdict {
+  SAFE
+  FLAGGED
+  BLOCKED
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Auth (managed by Better Auth) — the parent / account owner
+// ─────────────────────────────────────────────────────────────────────────────
+
+model User {
+  id            String   @id @default(cuid())
+  name          String
+  email         String   @unique
+  emailVerified Boolean  @default(false)
+  image         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  sessions Session[]
+  accounts Account[]
+  children Child[]
+
+  @@map("user")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  expiresAt DateTime
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id @default(cuid())
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@unique([providerId, accountId])
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Learner — the child profile (minimum information only)
+// ─────────────────────────────────────────────────────────────────────────────
+
+model Child {
+  id            String    @id @default(cuid())
+  parentId      String
+  parent        User      @relation(fields: [parentId], references: [id], onDelete: Cascade)
+  nickname      String
+  ageBand       AgeBand
+  avatar        String? // preset avatar identifier, never an uploaded photo
+  level         Int       @default(1)
+  xp            Int       @default(0)
+  streak        Int       @default(0)
+  longestStreak Int       @default(0)
+  lastActiveAt  DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  missions       ChildMission[]
+  missionSteps   ChildMissionStep[]
+  badges         ChildBadge[]
+  learningEvents LearningEvent[]
+  feedback       Feedback[]
+
+  @@index([parentId])
+  @@map("child")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Content — missions & steps (seeded, rendered by a generic engine)
+// ─────────────────────────────────────────────────────────────────────────────
+
+model Mission {
+  id               String   @id @default(cuid())
+  slug             String   @unique
+  title            String
+  subtitle         String?
+  concept          String
+  description      String?
+  order            Int      @unique
+  estimatedMinutes Int      @default(8)
+  isPublished      Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  steps          MissionStep[]
+  childMissions  ChildMission[]
+  learningEvents LearningEvent[]
+  feedback       Feedback[]
+
+  @@index([order])
+  @@map("mission")
+}
+
+model MissionStep {
+  id        String          @id @default(cuid())
+  missionId String
+  mission   Mission         @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  order     Int
+  type      MissionStepType
+  title     String?
+  content   Json // step payload, validated by a Zod schema at the app layer
+  xpReward  Int             @default(10)
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+
+  childSteps     ChildMissionStep[]
+  learningEvents LearningEvent[]
+  feedback       Feedback[]
+
+  @@unique([missionId, order])
+  @@index([missionId])
+  @@map("mission_step")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Progress — per child
+// ─────────────────────────────────────────────────────────────────────────────
+
+model ChildMission {
+  id          String        @id @default(cuid())
+  childId     String
+  child       Child         @relation(fields: [childId], references: [id], onDelete: Cascade)
+  missionId   String
+  mission     Mission       @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  status      MissionStatus @default(LOCKED)
+  score       Int?
+  startedAt   DateTime?
+  completedAt DateTime?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  steps ChildMissionStep[]
+
+  @@unique([childId, missionId])
+  @@index([childId])
+  @@index([missionId])
+  @@map("child_mission")
+}
+
+model ChildMissionStep {
+  id             String       @id @default(cuid())
+  childId        String
+  child          Child        @relation(fields: [childId], references: [id], onDelete: Cascade)
+  childMissionId String
+  childMission   ChildMission @relation(fields: [childMissionId], references: [id], onDelete: Cascade)
+  missionStepId  String
+  missionStep    MissionStep  @relation(fields: [missionStepId], references: [id], onDelete: Cascade)
+  status         StepStatus   @default(NOT_STARTED)
+  response       Json?
+  isCorrect      Boolean?
+  attempts       Int          @default(0)
+  completedAt    DateTime?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@unique([childId, missionStepId])
+  @@index([childId])
+  @@index([childMissionId])
+  @@index([missionStepId])
+  @@map("child_mission_step")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Rewards
+// ─────────────────────────────────────────────────────────────────────────────
+
+model Badge {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  description String
+  icon        String?
+  criteria    Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  childBadges ChildBadge[]
+
+  @@map("badge")
+}
+
+model ChildBadge {
+  id        String   @id @default(cuid())
+  childId   String
+  child     Child    @relation(fields: [childId], references: [id], onDelete: Cascade)
+  badgeId   String
+  badge     Badge    @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+  earnedAt  DateTime @default(now())
+  createdAt DateTime @default(now())
+
+  @@unique([childId, badgeId])
+  @@index([childId])
+  @@index([badgeId])
+  @@map("child_badge")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Analytics & AI audit
+// ─────────────────────────────────────────────────────────────────────────────
+
+model LearningEvent {
+  id            String            @id @default(cuid())
+  childId       String
+  child         Child             @relation(fields: [childId], references: [id], onDelete: Cascade)
+  missionId     String?
+  mission       Mission?          @relation(fields: [missionId], references: [id], onDelete: SetNull)
+  missionStepId String?
+  missionStep   MissionStep?      @relation(fields: [missionStepId], references: [id], onDelete: SetNull)
+  type          LearningEventType
+  payload       Json?
+  createdAt     DateTime          @default(now())
+
+  @@index([childId])
+  @@index([type])
+  @@index([createdAt])
+  @@index([childId, createdAt])
+  @@map("learning_event")
+}
+
+model Feedback {
+  id               String        @id @default(cuid())
+  childId          String
+  child            Child         @relation(fields: [childId], references: [id], onDelete: Cascade)
+  missionId        String?
+  mission          Mission?      @relation(fields: [missionId], references: [id], onDelete: SetNull)
+  missionStepId    String?
+  missionStep      MissionStep?  @relation(fields: [missionStepId], references: [id], onDelete: SetNull)
+  kind             FeedbackKind
+  inputSummary     String? // short, non-PII summary of what the child submitted
+  content          String // the safe feedback text shown to the child
+  model            String?
+  safety           SafetyVerdict @default(SAFE)
+  promptTokens     Int?
+  completionTokens Int?
+  createdAt        DateTime      @default(now())
+
+  @@index([childId])
+  @@index([createdAt])
+  @@map("feedback")
+}

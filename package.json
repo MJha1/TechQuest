@@ -1,0 +1,28 @@
+{
+  "name": "techquest",
+  "version": "0.0.0",
+  "private": true,
+  "description": "TechQuest — an interactive technology & AI learning platform for children aged 8–12.",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "predev": "npm run build -w @techquest/shared && npm run generate -w @techquest/db",
+    "dev": "concurrently -k -n shared,api,web -c blue,green,magenta \"npm run dev -w @techquest/shared\" \"npm run dev -w @techquest/api\" \"npm run dev -w @techquest/web\"",
+    "build": "npm run build -w @techquest/shared && npm run build -w @techquest/db && npm run build -w @techquest/api && npm run build -w @techquest/web",
+    "typecheck": "npm run build -w @techquest/shared && npm run generate -w @techquest/db && npm run typecheck --workspaces --if-present",
+    "test": "npm run build -w @techquest/shared && npm run generate -w @techquest/db && npm run test --workspaces --if-present",
+    "test:e2e": "playwright test",
+    "clean": "rimraf \"**/dist\" \"**/node_modules/.vite\""
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.50.1",
+    "concurrently": "^9.1.2",
+    "rimraf": "^6.0.1",
+    "typescript": "^5.7.3"
+  }
+}
