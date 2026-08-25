@@ -17,6 +17,7 @@
     "typecheck": "npm run build -w @techquest/shared && npm run generate -w @techquest/db && npm run typecheck --workspaces --if-present",
     "test": "npm run build -w @techquest/shared && npm run generate -w @techquest/db && npm run test --workspaces --if-present",
     "test:e2e": "playwright test",
+    "validate:content": "npm run validate:content -w @techquest/db",
     "clean": "rimraf \"**/dist\" \"**/node_modules/.vite\""
   },
   "devDependencies": {
