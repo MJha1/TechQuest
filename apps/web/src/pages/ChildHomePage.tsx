@@ -1,22 +1,39 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Compass } from "lucide-react";
+import type { BadgeStatus } from "@techquest/shared";
 import { useChildContext } from "@/context/ChildContext";
 import { childNav } from "@/lib/nav";
+import { listChildBadges } from "@/lib/api";
 import { AppShell } from "@/components/layout/AppShell";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { XPDisplay } from "@/components/XPDisplay";
 import { StreakDisplay } from "@/components/StreakDisplay";
+import { BadgeList } from "@/components/BadgeList";
 
 /**
- * Child home — the learner's dashboard for the currently active child. The
- * active child is guaranteed present by RequireChild, so this page never
- * re-checks auth; it just renders. No mission logic yet.
+ * Child home — the learner's dashboard for the currently active child. Shows the
+ * child's XP, level, streak, and badges. The active child is guaranteed present
+ * by RequireChild, so this page never re-checks auth.
  */
 export default function ChildHomePage() {
   const { activeChild } = useChildContext();
   const child = activeChild!; // guaranteed by RequireChild
+
+  const [badges, setBadges] = useState<BadgeStatus[] | null>(null);
+  useEffect(() => {
+    let active = true;
+    listChildBadges(child.id)
+      .then((b) => active && setBadges(b))
+      .catch(() => active && setBadges([]));
+    return () => {
+      active = false;
+    };
+  }, [child.id]);
+
+  const earnedCount = badges?.filter((b) => b.earned).length ?? 0;
 
   const sidebarFooter = (
     <div className="flex items-center gap-3">
@@ -73,6 +90,21 @@ export default function ChildHomePage() {
           <XPDisplay xp={child.xp} level={child.level} size="large" />
           <StreakDisplay streak={child.streak} size="large" />
         </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle style={{ fontFamily: "var(--font-display)" }}>
+              Badges{badges ? ` (${earnedCount}/${badges.length})` : ""}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {badges === null ? (
+              <p className="text-sm text-muted-foreground">Loading badges…</p>
+            ) : (
+              <BadgeList badges={badges} />
+            )}
+          </CardContent>
+        </Card>
       </div>
     </AppShell>
   );

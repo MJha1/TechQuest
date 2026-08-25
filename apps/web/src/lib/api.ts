@@ -9,6 +9,7 @@ import type {
   ChildMissionState,
   AnswerResult,
   CompleteResult,
+  BadgeStatus,
 } from "@techquest/shared";
 import { API_BASE } from "./config";
 
@@ -72,6 +73,10 @@ export const getMission = (id: string): Promise<MissionDetail> =>
 /** A child's missions with progress. */
 export const listChildMissions = (childId: string): Promise<ChildMissionSummary[]> =>
   request<ChildMissionSummary[]>(`/api/children/${childId}/missions`);
+
+/** A child's badges (earned + locked). */
+export const listChildBadges = (childId: string): Promise<BadgeStatus[]> =>
+  request<BadgeStatus[]>(`/api/children/${childId}/badges`);
 
 /** Start or resume a mission for a child. */
 export const startMission = (missionId: string, childId: string): Promise<ChildMissionState> =>

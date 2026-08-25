@@ -60,7 +60,7 @@ describe("StepActivity (data-driven, controlled)", () => {
       feedback: "Because more examples help.",
       xpAwarded: 10,
       step: { missionStepId: "s1", status: "COMPLETED", isCorrect: true, attempts: 1, response: null, completedAt: null },
-      child: { xp: 10, level: 1 },
+      child: { xp: 10, level: 1, streak: 0 },
     };
     render(
       <StepActivity

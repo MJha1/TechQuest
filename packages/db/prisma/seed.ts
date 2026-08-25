@@ -552,25 +552,33 @@ const missions: SeedMission[] = [
   },
 ];
 
+// Badge definitions. Award rules live server-side in lib/gamification.ts; the
+// `criteria` here is a human-readable description of when each is earned.
 const badges = [
-  { slug: "first-mission", name: "First Steps", description: "Completed your first mission.", icon: "🎉" },
-  { slug: "ai-learner", name: "AI Learner", description: "Learned how AI learns.", icon: "🧠" },
-  { slug: "recommendation-expert", name: "Recommendation Expert", description: "Learned how apps recommend.", icon: "📺" },
-  { slug: "careful-thinker", name: "Careful Thinker", description: "Learned that AI can be wrong.", icon: "🔍" },
-  { slug: "algorithm-ace", name: "Algorithm Ace", description: "Learned how computers follow instructions.", icon: "📝" },
-  { slug: "robot-teacher", name: "Robot Teacher", description: "Taught a robot with data and rules.", icon: "🤖" },
-  { slug: "ai-builder", name: "AI Builder", description: "Designed your first AI idea.", icon: "🚀" },
+  { slug: "first-explorer", name: "First Explorer", description: "Completed your very first mission.", icon: "🧭", criteria: { rule: "Complete 1 mission" } },
+  { slug: "pattern-detective", name: "Pattern Detective", description: "Discovered how AI learns patterns from examples.", icon: "🔍", criteria: { rule: "Complete the 'How Does AI Learn?' mission" } },
+  { slug: "ai-explorer", name: "AI Explorer", description: "Completed three missions.", icon: "🚀", criteria: { rule: "Complete 3 missions" } },
+  { slug: "builder", name: "Builder", description: "Designed your very first AI idea.", icon: "🛠️", criteria: { rule: "Complete the 'Build Your First AI Idea' mission" } },
+  { slug: "three-day-streak", name: "3-Day Streak", description: "Learned three days in a row. Keep it going!", icon: "🔥", criteria: { rule: "Reach a 3-day streak" } },
 ];
 
 async function main() {
-  // Badges (upsert by slug).
+  // Badges (upsert by slug), then remove any that are no longer defined.
   for (const badge of badges) {
     await prisma.badge.upsert({
       where: { slug: badge.slug },
-      update: { name: badge.name, description: badge.description, icon: badge.icon },
+      update: {
+        name: badge.name,
+        description: badge.description,
+        icon: badge.icon,
+        criteria: badge.criteria,
+      },
       create: badge,
     });
   }
+  await prisma.badge.deleteMany({
+    where: { slug: { notIn: badges.map((b) => b.slug) } },
+  });
 
   // Missions + steps (rebuild steps each run for idempotency).
   for (const mission of missions) {

@@ -115,7 +115,9 @@ function Feedback({ result }: { result: AnswerResult }) {
     return (
       <div role="status" className="flex items-start gap-2 rounded-md bg-secondary p-3 text-sm text-secondary-foreground">
         <Sparkles className="size-5 shrink-0 text-primary" />
-        <p className="font-semibold">Nice thinking! +{result.xpAwarded} XP</p>
+        <p className="font-semibold">
+          Nice thinking!{result.xpAwarded > 0 ? ` +${result.xpAwarded} XP` : ""}
+        </p>
       </div>
     );
   }

@@ -16,6 +16,8 @@ import type {
   ServedStep,
 } from "@techquest/shared";
 import { badRequest, notFound } from "../lib/http-error.js";
+import { xpForAnswer, potentialXp, XP_MISSION_COMPLETE } from "../lib/gamification.js";
+import { applyActivity, evaluateBadges, toStats } from "./gamification.service.js";
 
 /**
  * TechQuest mission engine.
@@ -31,9 +33,6 @@ import { badRequest, notFound } from "../lib/http-error.js";
  *     per mission (a completion bonus). Mission completion is idempotent.
  */
 
-const XP_PER_LEVEL = 100;
-const MISSION_COMPLETION_BONUS_XP = 50;
-
 // Steps whose correctness is objectively checkable against stored content.
 const GRADED = new Set(["CHOICE", "PREDICTION", "DRAG_DROP"]);
 // Steps that require a free-text/open response but aren't objectively graded.
@@ -42,10 +41,6 @@ const OPEN_ENDED = new Set(["QUESTION", "CHALLENGE", "REFLECTION"]);
 
 type Content = Record<string, unknown>;
 const asContent = (c: unknown): Content => (c && typeof c === "object" ? (c as Content) : {});
-
-function levelForXp(xp: number): number {
-  return 1 + Math.floor(Math.max(0, xp) / XP_PER_LEVEL);
-}
 
 const iso = (d: Date | null | undefined): string | null => (d ? d.toISOString() : null);
 
@@ -92,7 +87,8 @@ function serializeServedStep(s: DbStep): ServedStep {
     type: s.type,
     title: s.title,
     content: sanitizeContent(s.type, s.content),
-    xpReward: s.xpReward,
+    // Show the gamification rule's reward, not the (now-informational) seed value.
+    xpReward: potentialXp(s.type),
   };
 }
 
@@ -165,16 +161,6 @@ function gradeStep(step: DbStep, response: unknown): Grade {
       (content.reveal as string) ??
       null,
   };
-}
-
-// ── XP ────────────────────────────────────────────────────────────────────────
-
-async function awardXp(childId: string, currentXp: number, delta: number) {
-  const xp = currentXp + delta;
-  return prisma.child.update({
-    where: { id: childId },
-    data: { xp, level: levelForXp(xp), lastActiveAt: new Date() },
-  });
 }
 
 // ── Catalog reads ─────────────────────────────────────────────────────────────
@@ -330,13 +316,13 @@ export async function answerStep(
     where: { childId, missionStepId: stepId },
   });
 
-  // Award once: for graded steps on the first correct answer; for open/acknowledge
-  // steps on first completion.
+  // XP is awarded once per step: a graded step on its first correct answer, a
+  // challenge on its first completion (open/acknowledge steps earn nothing).
+  const potential = xpForAnswer(step.type, grade.isCorrect); // 10 / 30 / 0
   const alreadyEarned = GRADED.has(step.type)
     ? prior?.isCorrect === true
     : prior?.status === "COMPLETED";
-  const earns = !alreadyEarned && (GRADED.has(step.type) ? grade.isCorrect === true : true);
-  const xpAwarded = earns ? step.xpReward : 0;
+  const xpAwarded = alreadyEarned ? 0 : potential;
 
   let cs: DbChildStep;
   if (prior) {
@@ -365,24 +351,25 @@ export async function answerStep(
     });
   }
 
-  const child = await prisma.child.findFirst({ where: { id: childId } });
-  let xp = child?.xp ?? 0;
-  let level = child?.level ?? 1;
-  if (earns && child) {
-    const updated = await awardXp(childId, child.xp, xpAwarded);
-    xp = updated.xp;
-    level = updated.level;
+  // Record activity (updates XP/level + daily streak in one write).
+  const activity = await applyActivity(childId, xpAwarded);
+  const stats = activity
+    ? toStats(activity.child)
+    : { xp: 0, level: 1, streak: 0 };
+  if (xpAwarded > 0) {
     await prisma.learningEvent.create({
       data: { childId, missionId, missionStepId: stepId, type: "XP_AWARDED", payload: { xp: xpAwarded } },
     });
   }
+  // A daily-streak advance can unlock the streak badge mid-mission.
+  if (activity?.streakIncremented) await evaluateBadges(childId);
 
   return {
     correct: grade.isCorrect,
     feedback: grade.feedback,
     xpAwarded,
     step: serializeChildStep(cs),
-    child: { xp, level },
+    child: stats,
   };
 }
 
@@ -397,18 +384,18 @@ export async function completeMission(
   if (!mission) throw notFound("Mission not found");
 
   const cm = await ensureChildMission(childId, missionId);
-  const child = await prisma.child.findFirst({ where: { id: childId } });
-  const currentXp = child?.xp ?? 0;
-  const currentLevel = child?.level ?? 1;
 
+  // Idempotent: a mission never awards its completion XP (or badges) twice.
   if (cm.status === "COMPLETED") {
+    const child = await prisma.child.findFirst({ where: { id: childId } });
     return {
       status: "COMPLETED",
       score: cm.score ?? 0,
       completedAt: iso(cm.completedAt),
       xpAwarded: 0,
       alreadyCompleted: true,
-      child: { xp: currentXp, level: currentLevel },
+      badges: [],
+      child: child ? toStats(child) : { xp: 0, level: 1, streak: 0 },
     };
   }
 
@@ -426,13 +413,11 @@ export async function completeMission(
     data: { status: "COMPLETED", score, completedAt: new Date() },
   });
 
-  let xp = currentXp;
-  let level = currentLevel;
-  if (child) {
-    const updated = await awardXp(childId, child.xp, MISSION_COMPLETION_BONUS_XP);
-    xp = updated.xp;
-    level = updated.level;
-  }
+  // Award the mission-completion XP (once) + advance the streak, then evaluate
+  // badges against the new totals.
+  const activity = await applyActivity(childId, XP_MISSION_COMPLETE);
+  const stats = activity ? toStats(activity.child) : { xp: 0, level: 1, streak: 0 };
+  const badges = await evaluateBadges(childId);
   await prisma.learningEvent.create({
     data: { childId, missionId, type: "MISSION_COMPLETED", payload: { score } },
   });
@@ -441,8 +426,9 @@ export async function completeMission(
     status: "COMPLETED",
     score,
     completedAt: iso(updatedCm.completedAt),
-    xpAwarded: MISSION_COMPLETION_BONUS_XP,
+    xpAwarded: XP_MISSION_COMPLETE,
     alreadyCompleted: false,
-    child: { xp, level },
+    badges,
+    child: stats,
   };
 }

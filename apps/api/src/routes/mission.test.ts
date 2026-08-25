@@ -18,6 +18,8 @@ const h = vi.hoisted(() => {
     childMission: [] as Row[],
     childMissionStep: [] as Row[],
     learningEvent: [] as Row[],
+    badge: [] as Row[],
+    childBadge: [] as Row[],
   };
 
   const matches = (row: Row, where: Record<string, unknown> = {}) =>
@@ -76,6 +78,8 @@ const h = vi.hoisted(() => {
     childMission: model(store.childMission, "cm"),
     childMissionStep: model(store.childMissionStep, "cms"),
     learningEvent: model(store.learningEvent, "ev"),
+    badge: model(store.badge, "badge"),
+    childBadge: model(store.childBadge, "cb"),
   };
 
   return { store, prisma };
@@ -111,6 +115,11 @@ function seed() {
     { id: "s_drag", missionId: "m1", order: 3, type: "DRAG_DROP", title: "Sort", content: { prompt: "p", items: [], targets: [], solution: { "1": "cats", "2": "dogs" } }, xpReward: 10, createdAt: now(), updatedAt: now() },
     { id: "s_q", missionId: "m1", order: 4, type: "QUESTION", title: "Explain", content: { prompt: "p", sampleAnswer: "sa" }, xpReward: 10, createdAt: now(), updatedAt: now() },
     { id: "s_done", missionId: "m1", order: 5, type: "COMPLETION", title: "Done", content: { heading: "h", body: "b" }, xpReward: 30, createdAt: now(), updatedAt: now() },
+  );
+
+  h.store.badge.push(
+    { id: "b_first", slug: "first-explorer", name: "First Explorer", description: "Completed your first mission.", icon: "🧭", criteria: null, createdAt: now(), updatedAt: now() },
+    { id: "b_pattern", slug: "pattern-detective", name: "Pattern Detective", description: "Patterns.", icon: "🔍", criteria: null, createdAt: now(), updatedAt: now() },
   );
 }
 
@@ -236,12 +245,12 @@ describe("POST /api/missions/:id/steps/:stepId/answer", () => {
     expect(res.body.data.xpAwarded).toBe(10);
   });
 
-  it("accepts an open-ended answer (correct = null) and awards XP", async () => {
+  it("accepts an open-ended answer (correct = null) but awards no XP", async () => {
     const res = await request(appAs("parent_A"))
       .post("/api/missions/m1/steps/s_q/answer")
       .send({ childId: "child_A", response: { text: "lots of cat photos" } });
     expect(res.body.data.correct).toBeNull();
-    expect(res.body.data.xpAwarded).toBe(10);
+    expect(res.body.data.xpAwarded).toBe(0); // only correct answers / challenges earn XP
   });
 
   it("does not re-award XP when re-answering a step", async () => {
@@ -270,7 +279,7 @@ describe("POST /api/missions/:id/steps/:stepId/answer", () => {
 // ── Completion (idempotent) ───────────────────────────────────────────────────
 
 describe("POST /api/missions/:id/complete", () => {
-  it("completes a mission, computes the score, and awards a one-time bonus", async () => {
+  it("completes a mission, computes the score, and awards 100 XP", async () => {
     const agent = appAs("parent_A");
     await request(agent).post("/api/missions/m1/start").send({ childId: "child_A" });
     await request(agent).post("/api/missions/m1/steps/s_choice/answer").send({ childId: "child_A", response: { optionId: "b" } });
@@ -280,11 +289,14 @@ describe("POST /api/missions/:id/complete", () => {
     expect(res.body.data.alreadyCompleted).toBe(false);
     expect(res.body.data.status).toBe("COMPLETED");
     expect(res.body.data.score).toBe(50); // 1 of 2 graded steps correct
-    expect(res.body.data.xpAwarded).toBe(50);
-    expect(childOf("child_A").xp).toBe(60); // 10 (choice) + 50 (bonus)
+    expect(res.body.data.xpAwarded).toBe(100);
+    expect(childOf("child_A").xp).toBe(110); // 10 (choice) + 100 (mission complete)
+    // First mission → First Explorer badge, and a streak of 1.
+    expect(res.body.data.badges).toContain("first-explorer");
+    expect(childOf("child_A").streak).toBe(1);
   });
 
-  it("is idempotent — a duplicate completion awards nothing more", async () => {
+  it("is idempotent — a duplicate completion awards no XP and no new badge", async () => {
     const agent = appAs("parent_A");
     await request(agent).post("/api/missions/m1/steps/s_choice/answer").send({ childId: "child_A", response: { optionId: "b" } });
     await request(agent).post("/api/missions/m1/complete").send({ childId: "child_A" });
@@ -293,8 +305,11 @@ describe("POST /api/missions/:id/complete", () => {
     const dup = await request(agent).post("/api/missions/m1/complete").send({ childId: "child_A" });
     expect(dup.body.data.alreadyCompleted).toBe(true);
     expect(dup.body.data.xpAwarded).toBe(0);
+    expect(dup.body.data.badges).toEqual([]);
     expect(childOf("child_A").xp).toBe(xpAfterFirst);
     expect(h.store.childMission).toHaveLength(1);
+    // The badge was granted exactly once.
+    expect(h.store.childBadge.filter((b) => b.badgeId === "b_first")).toHaveLength(1);
   });
 
   it("forbids completing for another parent's child", async () => {

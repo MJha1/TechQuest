@@ -8,7 +8,7 @@ import {
   listChildren,
   updateChild,
 } from "../controllers/children.controller.js";
-import { getChildMissions } from "../controllers/mission.controller.js";
+import { getChildMissions, getChildBadges } from "../controllers/mission.controller.js";
 
 /**
  * Child (learner) routes. Ownership is enforced on EVERY endpoint:
@@ -33,6 +33,14 @@ childrenRouter.get(
   requireAuth,
   requireChildOwnership("childId"),
   getChildMissions,
+);
+
+// A child's badges (earned + locked), for the showcase.
+childrenRouter.get(
+  "/:childId/badges",
+  requireAuth,
+  requireChildOwnership("childId"),
+  getChildBadges,
 );
 
 childrenRouter.get("/:id", requireAuth, requireChildOwnership("id"), getChild);

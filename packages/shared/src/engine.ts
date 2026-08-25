@@ -59,6 +59,13 @@ export interface ChildMissionSummary {
   } | null;
 }
 
+/** A child's gamification snapshot, returned with every reward. */
+export interface ChildStats {
+  xp: number;
+  level: number;
+  streak: number;
+}
+
 /** Result of grading a submitted step answer. */
 export interface AnswerResult {
   /** true/false for graded steps; null for open-ended/acknowledge steps. */
@@ -68,7 +75,7 @@ export interface AnswerResult {
   /** XP the backend awarded for this submission (0 if none). */
   xpAwarded: number;
   step: ChildStepState;
-  child: { xp: number; level: number };
+  child: ChildStats;
 }
 
 /** Result of completing a mission (idempotent). */
@@ -80,5 +87,20 @@ export interface CompleteResult {
   xpAwarded: number;
   /** True when the mission was already complete before this call. */
   alreadyCompleted: boolean;
-  child: { xp: number; level: number };
+  /** Slugs of badges newly earned by this completion. */
+  badges: string[];
+  child: ChildStats;
+}
+
+/** A badge and whether the child has earned it (badge showcase). */
+export interface BadgeView {
+  slug: string;
+  name: string;
+  description: string;
+  icon: string | null;
+}
+export interface BadgeStatus {
+  badge: BadgeView;
+  earned: boolean;
+  earnedAt: string | null;
 }

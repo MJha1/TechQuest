@@ -56,12 +56,12 @@ const STATE: ChildMissionState = {
 const choiceResult: AnswerResult = {
   correct: true, feedback: "More examples help.", xpAwarded: 10,
   step: { missionStepId: "st_choice", status: "COMPLETED", isCorrect: true, attempts: 1, response: null, completedAt: null },
-  child: { xp: 10, level: 1 },
+  child: { xp: 10, level: 1, streak: 0 },
 };
 const completionResult: AnswerResult = {
   correct: null, feedback: null, xpAwarded: 30,
   step: { missionStepId: "st_done", status: "COMPLETED", isCorrect: null, attempts: 1, response: null, completedAt: null },
-  child: { xp: 40, level: 1 },
+  child: { xp: 40, level: 1, streak: 1 },
 };
 
 function renderPage() {
