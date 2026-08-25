@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import type { AnswerResult, ChildMissionState } from "@techquest/shared";
 import { useChildContext } from "@/context/ChildContext";
-import { startMission, answerStep } from "@/lib/api";
+import { startMission, answerStep, requestHint } from "@/lib/api";
 import { track } from "@/lib/analytics";
 import { Button } from "@/components/ui/button";
 import { LoadingState } from "@/components/ui/loading-state";
@@ -16,6 +16,17 @@ import {
   initialResponse,
   stepMeta,
 } from "@/components/mission/StepRenderer";
+
+/** Best-effort description of the child's current attempt, for the hint prompt. */
+function attemptText(content: unknown, value: Record<string, unknown>): string {
+  if (typeof value.text === "string") return value.text;
+  if (typeof value.optionId === "string") {
+    const options = (content as { options?: { id: string; label: string }[] })?.options ?? [];
+    return options.find((o) => o.id === value.optionId)?.label ?? "";
+  }
+  if (value.placements) return "made some matches";
+  return "";
+}
 
 /** Full-viewport centered frame for loading / error states. */
 function CenteredFrame({ children }: { children: React.ReactNode }) {
@@ -209,6 +220,19 @@ export default function MissionDetailPage() {
               stepType: step.type,
             })
           }
+          fetchHint={async () => {
+            const content = (step.content ?? {}) as Record<string, unknown>;
+            const question =
+              [step.title, content.prompt ?? content.task].filter(Boolean).join(" — ") ||
+              "the current step";
+            const res = await requestHint({
+              missionContext: state.mission.title,
+              learningObjective: state.mission.concept,
+              question,
+              attempt: attemptText(step.content, value).slice(0, 500),
+            });
+            return res.hint;
+          }}
         />
       }
       footer={footer}

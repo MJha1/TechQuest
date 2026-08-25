@@ -35,6 +35,7 @@ vi.mock("@/context/ChildContext", () => ({
 vi.mock("@/lib/api", () => ({
   startMission: startMock,
   answerStep: answerMock,
+  requestHint: vi.fn(),
   completeMission: vi.fn(),
   listChildMissions: vi.fn(),
   ApiRequestError: class ApiRequestError extends Error {},

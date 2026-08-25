@@ -2,6 +2,7 @@ import express, { type Express, type RequestHandler } from "express";
 import { env } from "./lib/env.js";
 import type { SessionResolver } from "./lib/auth.js";
 import { authNodeHandler, createBetterAuthSessionResolver } from "./lib/better-auth.js";
+import { createDefaultAIProvider, type AIProvider } from "./ai/index.js";
 import { requestId } from "./middleware/request-id.js";
 import { requestLogger } from "./middleware/request-logger.js";
 import { corsMiddleware, securityHeaders } from "./middleware/security.js";
@@ -25,6 +26,12 @@ export interface CreateAppOptions {
   enableRateLimit?: boolean;
   /** Override rate-limit window/max (used by tests to assert 429s). */
   rateLimit?: { windowMs: number; max: number };
+  /**
+   * Override the AI provider (LLM boundary). Defaults to the configured provider
+   * (Anthropic when a key is set, otherwise a null provider that triggers the
+   * safe fallback). Tests inject a mock provider.
+   */
+  aiProvider?: AIProvider;
 }
 
 /**
@@ -44,6 +51,9 @@ export function createApp(options: CreateAppOptions = {}): Express {
   app.disable("x-powered-by");
   // Trust the first proxy hop (Railway) so client IPs / rate limiting are correct.
   app.set("trust proxy", 1);
+
+  // Inject the AI provider (controllers read it from app.locals). Not hardcoded.
+  app.locals.aiProvider = options.aiProvider ?? createDefaultAIProvider();
 
   // Observability
   app.use(requestId);

@@ -29,6 +29,11 @@ const EnvSchema = z
     BETTER_AUTH_SECRET: z.string().min(1).default(DEV_AUTH_SECRET),
     // Public base URL Better Auth uses to build callback/cookie URLs.
     BETTER_AUTH_URL: z.string().url().default("http://localhost:3001"),
+    // AI (server-only). The key never reaches the browser. When unset, hints use
+    // the safe fallback. Model is overridable (e.g. claude-haiku-4-5 for cost).
+    ANTHROPIC_API_KEY: z.string().optional(),
+    AI_MODEL: z.string().default("claude-opus-5"),
+    AI_HINT_TIMEOUT_MS: z.coerce.number().int().positive().default(8000),
   })
   .superRefine((cfg, ctx) => {
     if (cfg.NODE_ENV === "production" && cfg.BETTER_AUTH_SECRET === DEV_AUTH_SECRET) {

@@ -11,6 +11,7 @@ import type {
   CompleteResult,
   BadgeStatus,
   ParentDashboard,
+  HintResult,
 } from "@techquest/shared";
 import { API_BASE } from "./config";
 
@@ -82,6 +83,15 @@ export const listChildBadges = (childId: string): Promise<BadgeStatus[]> =>
 /** The parent's educational dashboard (all their children). */
 export const getParentDashboard = (): Promise<ParentDashboard> =>
   request<ParentDashboard>("/api/parent/dashboard");
+
+/** Ask the AI service for a short, age-appropriate hint (never the answer). */
+export const requestHint = (input: {
+  missionContext: string;
+  learningObjective: string;
+  question: string;
+  attempt?: string;
+}): Promise<HintResult> =>
+  request<HintResult>("/api/ai/hint", { method: "POST", body: JSON.stringify(input) });
 
 /** Start or resume a mission for a child. */
 export const startMission = (missionId: string, childId: string): Promise<ChildMissionState> =>

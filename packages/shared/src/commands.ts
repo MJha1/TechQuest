@@ -116,3 +116,15 @@ export const AIHintRequestSchema = z
   })
   .strict();
 export type AIHintRequestInput = z.infer<typeof AIHintRequestSchema>;
+
+// Request for the AI hint endpoint (POST /api/ai/hint). All fields are bounded
+// so the endpoint stays a narrow, single-purpose helper — not an open chat.
+export const HintRequestSchema = z
+  .object({
+    missionContext: z.string().trim().min(1).max(200),
+    learningObjective: z.string().trim().min(1).max(300),
+    question: z.string().trim().min(1).max(500),
+    attempt: z.string().trim().max(500).optional().default(""),
+  })
+  .strict();
+export type HintRequestInput = z.infer<typeof HintRequestSchema>;

@@ -18,6 +18,7 @@ export function MissionSidePanel({
   doneStepIds,
   hint,
   onShowHint,
+  fetchHint,
 }: {
   concept: string;
   subtitle: string | null;
@@ -27,8 +28,29 @@ export function MissionSidePanel({
   hint: string;
   /** Called when the child reveals the hint (for analytics). */
   onShowHint?: () => void;
+  /** Fetch a live AI hint; falls back to the static `hint` on failure. */
+  fetchHint?: () => Promise<string>;
 }) {
   const [showHint, setShowHint] = useState(false);
+  const [loadingHint, setLoadingHint] = useState(false);
+  const [hintText, setHintText] = useState<string | null>(null);
+
+  async function reveal() {
+    setShowHint(true);
+    onShowHint?.();
+    if (!fetchHint) {
+      setHintText(hint);
+      return;
+    }
+    setLoadingHint(true);
+    try {
+      setHintText(await fetchHint());
+    } catch {
+      setHintText(hint); // graceful fallback to the built-in hint
+    } finally {
+      setLoadingHint(false);
+    }
+  }
 
   return (
     <div className="space-y-8 text-sm">
@@ -77,17 +99,10 @@ export function MissionSidePanel({
         {showHint ? (
           <p className="flex items-start gap-2 rounded-md bg-secondary p-3 text-secondary-foreground">
             <Lightbulb className="size-4 shrink-0 text-primary" />
-            {hint}
+            {loadingHint ? "Thinking of a hint…" : (hintText ?? hint)}
           </p>
         ) : (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              setShowHint(true);
-              onShowHint?.();
-            }}
-          >
+          <Button variant="outline" size="sm" onClick={reveal}>
             <Lightbulb className="size-4" /> Show a hint
           </Button>
         )}
