@@ -8,7 +8,11 @@ import {
   listChildren,
   updateChild,
 } from "../controllers/children.controller.js";
-import { getChildMissions, getChildBadges } from "../controllers/mission.controller.js";
+import {
+  getChildMissions,
+  getChildBadges,
+  getChildRecommendationHandler,
+} from "../controllers/mission.controller.js";
 
 /**
  * Child (learner) routes. Ownership is enforced on EVERY endpoint:
@@ -41,6 +45,14 @@ childrenRouter.get(
   requireAuth,
   requireChildOwnership("childId"),
   getChildBadges,
+);
+
+// A deterministic "what should I do next?" recommendation (ownership-gated).
+childrenRouter.get(
+  "/:childId/recommendation",
+  requireAuth,
+  requireChildOwnership("childId"),
+  getChildRecommendationHandler,
 );
 
 childrenRouter.get("/:id", requireAuth, requireChildOwnership("id"), getChild);

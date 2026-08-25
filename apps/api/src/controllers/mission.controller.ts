@@ -14,6 +14,7 @@ import {
   startMission,
 } from "../services/mission.service.js";
 import { listChildBadges } from "../services/gamification.service.js";
+import { getChildRecommendation } from "../services/recommendation.service.js";
 
 /**
  * Mission engine controllers. Thin: auth/ownership are enforced by middleware
@@ -43,6 +44,11 @@ export async function getChildMissions(req: Request, res: Response): Promise<voi
 /** GET /api/children/:childId/badges */
 export async function getChildBadges(req: Request, res: Response): Promise<void> {
   res.json(ok(await listChildBadges(req.child!.id)));
+}
+
+/** GET /api/children/:childId/recommendation */
+export async function getChildRecommendationHandler(req: Request, res: Response): Promise<void> {
+  res.json(ok(await getChildRecommendation(req.child!.id)));
 }
 
 /** POST /api/missions/:id/start */

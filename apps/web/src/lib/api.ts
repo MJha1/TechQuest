@@ -11,6 +11,7 @@ import type {
   CompleteResult,
   BadgeStatus,
   ParentDashboard,
+  Recommendation,
   HintResult,
   ActivityInfo,
   ActivityResult,
@@ -78,6 +79,10 @@ export const getMission = (id: string): Promise<MissionDetail> =>
 /** A child's missions with progress. */
 export const listChildMissions = (childId: string): Promise<ChildMissionSummary[]> =>
   request<ChildMissionSummary[]>(`/api/children/${childId}/missions`);
+
+/** A deterministic "what should I do next?" recommendation for a child. */
+export const getChildRecommendation = (childId: string): Promise<Recommendation> =>
+  request<Recommendation>(`/api/children/${childId}/recommendation`);
 
 /** A child's badges (earned + locked). */
 export const listChildBadges = (childId: string): Promise<BadgeStatus[]> =>
