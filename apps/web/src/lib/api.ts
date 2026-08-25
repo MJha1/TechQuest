@@ -3,6 +3,12 @@ import type {
   Child,
   CreateChildInput,
   UpdateChildInput,
+  Mission,
+  MissionDetail,
+  ChildMissionSummary,
+  ChildMissionState,
+  AnswerResult,
+  CompleteResult,
 } from "@techquest/shared";
 import { API_BASE } from "./config";
 
@@ -53,3 +59,42 @@ export const getChild = (id: string): Promise<Child> =>
 /** Update one of the parent's children. */
 export const updateChild = (id: string, input: UpdateChildInput): Promise<Child> =>
   request<Child>(`/api/children/${id}`, { method: "PATCH", body: JSON.stringify(input) });
+
+// ── Mission engine ──────────────────────────────────────────────────────────
+
+/** Published mission catalog (summaries). */
+export const listMissions = (): Promise<Mission[]> => request<Mission[]>("/api/missions");
+
+/** A single mission with its sanitized steps. */
+export const getMission = (id: string): Promise<MissionDetail> =>
+  request<MissionDetail>(`/api/missions/${id}`);
+
+/** A child's missions with progress. */
+export const listChildMissions = (childId: string): Promise<ChildMissionSummary[]> =>
+  request<ChildMissionSummary[]>(`/api/children/${childId}/missions`);
+
+/** Start or resume a mission for a child. */
+export const startMission = (missionId: string, childId: string): Promise<ChildMissionState> =>
+  request<ChildMissionState>(`/api/missions/${missionId}/start`, {
+    method: "POST",
+    body: JSON.stringify({ childId }),
+  });
+
+/** Submit an answer to a step; the backend grades it. */
+export const answerStep = (
+  missionId: string,
+  stepId: string,
+  childId: string,
+  response: unknown,
+): Promise<AnswerResult> =>
+  request<AnswerResult>(`/api/missions/${missionId}/steps/${stepId}/answer`, {
+    method: "POST",
+    body: JSON.stringify({ childId, response }),
+  });
+
+/** Complete a mission (idempotent). */
+export const completeMission = (missionId: string, childId: string): Promise<CompleteResult> =>
+  request<CompleteResult>(`/api/missions/${missionId}/complete`, {
+    method: "POST",
+    body: JSON.stringify({ childId }),
+  });

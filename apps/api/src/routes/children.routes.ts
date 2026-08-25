@@ -8,6 +8,7 @@ import {
   listChildren,
   updateChild,
 } from "../controllers/children.controller.js";
+import { getChildMissions } from "../controllers/mission.controller.js";
 
 /**
  * Child (learner) routes. Ownership is enforced on EVERY endpoint:
@@ -24,6 +25,14 @@ childrenRouter.post(
   requireAuth,
   validate({ body: CreateChildSchema }),
   createChild,
+);
+
+// A child's missions with progress (ownership-gated).
+childrenRouter.get(
+  "/:childId/missions",
+  requireAuth,
+  requireChildOwnership("childId"),
+  getChildMissions,
 );
 
 childrenRouter.get("/:id", requireAuth, requireChildOwnership("id"), getChild);

@@ -1,36 +1,44 @@
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import type { ChildMissionSummary } from "@techquest/shared";
 import { useChildContext } from "@/context/ChildContext";
 import { childNav } from "@/lib/nav";
+import { listChildMissions } from "@/lib/api";
 import { AppShell } from "@/components/layout/AppShell";
 import { MissionCard, type MissionCardStatus } from "@/components/MissionCard";
 import { XPDisplay } from "@/components/XPDisplay";
 import { StreakDisplay } from "@/components/StreakDisplay";
+import { LoadingState } from "@/components/ui/loading-state";
+import { ErrorState } from "@/components/ui/error-state";
+
+/** Map server progress to the presentational MissionCard status. */
+function statusOf(summary: ChildMissionSummary): MissionCardStatus {
+  if (!summary.progress) return "available";
+  if (summary.progress.status === "COMPLETED") return "completed";
+  return "in_progress";
+}
 
 /**
- * Mission list for the active child. Illustrative placeholder tiles only — there
- * is no mission data model or progression logic yet; tiles simply route into the
- * mission detail flow to exercise the nested routes.
+ * Mission list for the active child — fully data-driven. Missions come from the
+ * API (catalog joined with the child's progress); nothing is hardcoded.
  */
-const PLACEHOLDER_MISSIONS: {
-  id: string;
-  title: string;
-  concept: string;
-  status: MissionCardStatus;
-  xpReward: number;
-  minutes: number;
-  icon: string;
-  progress?: number;
-}[] = [
-  { id: "meet-the-machines", title: "Meet the Machines", concept: "How computers think", status: "available", xpReward: 50, minutes: 10, icon: "🤖" },
-  { id: "pattern-power", title: "Pattern Power", concept: "Spotting patterns", status: "in_progress", xpReward: 75, minutes: 15, icon: "🧩", progress: 60 },
-  { id: "robot-rules", title: "Robot Rules", concept: "Giving instructions", status: "completed", xpReward: 60, minutes: 12, icon: "🦾" },
-  { id: "ai-detective", title: "AI Detective", concept: "How AI learns", status: "locked", xpReward: 100, minutes: 20, icon: "🔍" },
-];
-
 export default function MissionsPage() {
   const { activeChild } = useChildContext();
   const child = activeChild!;
   const navigate = useNavigate();
+
+  const [missions, setMissions] = useState<ChildMissionSummary[] | null>(null);
+  const [error, setError] = useState(false);
+
+  function load() {
+    setError(false);
+    setMissions(null);
+    listChildMissions(child.id)
+      .then(setMissions)
+      .catch(() => setError(true));
+  }
+
+  useEffect(load, [child.id]);
 
   return (
     <AppShell
@@ -45,21 +53,28 @@ export default function MissionsPage() {
       }
     >
       <div className="mx-auto max-w-5xl">
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {PLACEHOLDER_MISSIONS.map((m) => (
-            <MissionCard
-              key={m.id}
-              title={m.title}
-              concept={m.concept}
-              status={m.status}
-              progress={m.progress}
-              xpReward={m.xpReward}
-              estimatedMinutes={m.minutes}
-              icon={m.icon}
-              onAction={() => navigate(`/missions/${m.id}`)}
-            />
-          ))}
-        </div>
+        {missions === null && !error && <LoadingState label="Loading missions…" />}
+        {error && <ErrorState onRetry={load} />}
+        {missions && (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {missions.map((m) => {
+              const status = statusOf(m);
+              const progress =
+                m.totalSteps > 0 ? Math.round((m.completedSteps / m.totalSteps) * 100) : 0;
+              return (
+                <MissionCard
+                  key={m.mission.id}
+                  title={m.mission.title}
+                  concept={m.mission.concept}
+                  status={status}
+                  progress={progress}
+                  estimatedMinutes={m.mission.estimatedMinutes}
+                  onAction={() => navigate(`/missions/${m.mission.id}`)}
+                />
+              );
+            })}
+          </div>
+        )}
       </div>
     </AppShell>
   );

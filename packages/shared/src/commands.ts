@@ -51,7 +51,28 @@ export const UpdateChildSchema = z
   });
 export type UpdateChildInput = z.infer<typeof UpdateChildSchema>;
 
-// ── Missions & progress ───────────────────────────────────────────────────────
+// ── Mission engine requests ───────────────────────────────────────────────────
+// missionId/stepId travel in the route path; only childId (+ a step response)
+// come in the body. These are `.strict()` and deliberately DO NOT accept score,
+// xp, or isCorrect — the backend computes all of those. The child is identified
+// by childId and authorized by requireChildOwnership.
+
+// childId is a non-empty string here (not a strict cuid): the real gate is
+// requireChildOwnership, which 403/404s an id that isn't the parent's own child.
+const childId = z.string().min(1);
+
+export const StartMissionRequestSchema = z.object({ childId }).strict();
+export type StartMissionRequest = z.infer<typeof StartMissionRequestSchema>;
+
+export const AnswerStepRequestSchema = z
+  .object({ childId, response: JsonSchema })
+  .strict();
+export type AnswerStepRequest = z.infer<typeof AnswerStepRequestSchema>;
+
+export const CompleteMissionRequestSchema = z.object({ childId }).strict();
+export type CompleteMissionRequest = z.infer<typeof CompleteMissionRequestSchema>;
+
+// ── Missions & progress (generic, legacy) ─────────────────────────────────────
 
 export const StartMissionSchema = z.object({ missionId: cuid }).strict();
 export type StartMissionInput = z.infer<typeof StartMissionSchema>;
