@@ -34,6 +34,11 @@ const EnvSchema = z
     ANTHROPIC_API_KEY: z.string().optional(),
     AI_MODEL: z.string().default("claude-opus-5"),
     AI_HINT_TIMEOUT_MS: z.coerce.number().int().positive().default(8000),
+    // Absolute path to the built React app to serve in production. Empty (the
+    // default) falls back to the sibling apps/web/dist next to the API build, and
+    // if that doesn't exist static serving is simply skipped (e.g. in dev, where
+    // Vite serves the frontend).
+    WEB_DIST: z.string().default(""),
   })
   .superRefine((cfg, ctx) => {
     if (cfg.NODE_ENV === "production" && cfg.BETTER_AUTH_SECRET === DEV_AUTH_SECRET) {

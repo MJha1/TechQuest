@@ -1,0 +1,38 @@
+# Dependencies & build outputs (rebuilt inside the image)
+node_modules
+**/node_modules
+dist
+**/dist
+.vite
+**/.vite
+
+# Secrets & local env — never copy these into the build context
+.env
+**/.env
+!*.env.example
+
+# Version control & CI
+.git
+.gitignore
+.github
+
+# Tests, e2e artifacts, coverage (not needed in the production image)
+**/*.test.ts
+**/*.test.tsx
+e2e
+test-results
+playwright-report
+playwright.config.ts
+coverage
+
+# Tooling / editor / agent scratch
+.claude
+.vscode
+.idea
+*.log
+npm-debug.log*
+
+# Docs (not shipped in the runtime image)
+docs
+*.md
+!README.md

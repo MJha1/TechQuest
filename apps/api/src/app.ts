@@ -1,5 +1,9 @@
+import { existsSync } from "node:fs";
+import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import express, { type Express, type RequestHandler } from "express";
 import { env } from "./lib/env.js";
+import { logger } from "./lib/logger.js";
 import type { SessionResolver } from "./lib/auth.js";
 import { authNodeHandler, createBetterAuthSessionResolver } from "./lib/better-auth.js";
 import { createDefaultAIProvider, type AIProvider } from "./ai/index.js";
@@ -93,9 +97,39 @@ export function createApp(options: CreateAppOptions = {}): Express {
   // Routes
   app.use("/api", apiRouter);
 
+  // In production, serve the built React app from this same origin (so the
+  // browser calls /api on the same host — no CORS, cookies just work). Skipped
+  // when the build isn't present (e.g. in dev, where Vite serves the frontend).
+  serveWebApp(app);
+
   // Fallbacks
   app.use(notFoundHandler);
   app.use(errorHandler);
 
   return app;
+}
+
+/**
+ * Serve the compiled React SPA and fall back to index.html for client-side
+ * routes. Mounted after the API router, so `/api/*` is never shadowed; unmatched
+ * `/api` paths still reach the JSON 404 handler.
+ */
+function serveWebApp(app: Express): void {
+  // Only in production (or when a path is explicitly configured) — in dev/test
+  // the frontend is served by Vite and we must not shadow route behavior.
+  if (env.NODE_ENV !== "production" && !env.WEB_DIST) return;
+
+  // Explicit path wins; otherwise look for the sibling web build next to the API
+  // build (apps/api/dist/.. → apps/web/dist), which is how the container lays it out.
+  const webDist = env.WEB_DIST || fileURLToPath(new URL("../../web/dist", import.meta.url));
+  const indexHtml = join(webDist, "index.html");
+  if (!existsSync(indexHtml)) return; // no build present → nothing to serve (dev)
+
+  app.use(express.static(webDist, { index: false, maxAge: "1h" }));
+  app.use((req, res, next) => {
+    // Only GETs for non-API routes get the SPA shell; everything else falls through.
+    if (req.method !== "GET" || req.path.startsWith("/api/")) return next();
+    res.sendFile(indexHtml);
+  });
+  logger.info("web_app_served", { webDist });
 }
