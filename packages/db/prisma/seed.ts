@@ -205,6 +205,7 @@ const missions: SeedMission[] = [
             { id: "less", label: "Show less like this" },
           ],
           solution: { like: "more", skip: "less" },
+          explanation: "A like tells the app 'more like this'; a skip tells it 'less like this'.",
         },
       },
       {
@@ -217,6 +218,19 @@ const missions: SeedMission[] = [
             { id: "b", label: "Piano lessons", correct: false },
           ],
           reveal: "More soccer — the app follows the pattern of what they watch.",
+        },
+      },
+      {
+        type: "CHOICE",
+        title: "What if you skip?",
+        content: {
+          prompt: "You skip every cooking video you see. What will the app probably do?",
+          options: [
+            { id: "a", label: "Show you fewer cooking videos", correct: true },
+            { id: "b", label: "Show you many more cooking videos", correct: false },
+            { id: "c", label: "Delete all cooking videos forever", correct: false },
+          ],
+          explanation: "Skipping is a signal too — the app learns to show fewer of those.",
         },
       },
       {
@@ -289,6 +303,18 @@ const missions: SeedMission[] = [
         xpReward: 20,
       },
       {
+        type: "PREDICTION",
+        title: "Two different answers",
+        content: {
+          prompt: "You ask an AI the same question twice and get two different answers. What does that tell you?",
+          options: [
+            { id: "a", label: "It might be unsure — better to check", correct: true },
+            { id: "b", label: "Both answers must be true", correct: false },
+          ],
+          reveal: "Different answers are a clue the AI might be unsure — a good time to check a trusted source.",
+        },
+      },
+      {
         type: "REFLECTION",
         title: "Think about it",
         content: {
@@ -343,6 +369,7 @@ const missions: SeedMission[] = [
             { id: "step3", label: "Third" },
           ],
           solution: { "1": "step1", "2": "step2", "3": "step3" },
+          explanation: "Nice ordering! A sandwich only works if the steps happen in the right order.",
         },
       },
       {
@@ -366,6 +393,18 @@ const missions: SeedMission[] = [
           successCriteria: "Clear, ordered steps (get brush, add paste, brush, rinse) are perfect.",
         },
         xpReward: 20,
+      },
+      {
+        type: "PREDICTION",
+        title: "Out of order",
+        content: {
+          prompt: "A robot's steps say: (1) Eat the cereal. (2) Pour the milk. (3) Get a bowl. What happens?",
+          options: [
+            { id: "a", label: "It makes a mess — the steps are out of order", correct: true },
+            { id: "b", label: "It works perfectly", correct: false },
+          ],
+          reveal: "Out-of-order steps don't work — a computer does exactly what the order says.",
+        },
       },
       {
         type: "REFLECTION",
@@ -433,6 +472,7 @@ const missions: SeedMission[] = [
             { id: "wait", label: "Do nothing" },
           ],
           solution: { dry: "water", wet: "wait" },
+          explanation: "The rule plus the data decide the action: dry soil → water, wet soil → wait.",
         },
       },
       {
@@ -517,9 +557,9 @@ const missions: SeedMission[] = [
       },
       {
         type: "CHALLENGE",
-        title: "Fill in your idea",
+        title: "Design your AI product",
         content: {
-          task: "Complete your idea: Input → AI → Output.",
+          task: "Design your own AI product idea: what is the Input, what does the AI do, and what is the Output?",
           template: { input: "", ai: "", output: "" },
           example: {
             input: "A photo of a pet",
