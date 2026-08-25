@@ -128,3 +128,36 @@ export const HintRequestSchema = z
   })
   .strict();
 export type HintRequestInput = z.infer<typeof HintRequestSchema>;
+
+// ── Controlled AI learning activities ─────────────────────────────────────────
+// Each activity has a strict, bounded input schema. There is deliberately no
+// free-form "message" field anywhere — these are single-purpose learning tools,
+// never an open chatbot.
+
+/** Ask AI for another example of an idea. */
+export const AnotherExampleInputSchema = z
+  .object({ concept: z.string().trim().min(1).max(120) })
+  .strict();
+export type AnotherExampleInput = z.infer<typeof AnotherExampleInputSchema>;
+
+/** Compare two AI answers to the same question. */
+export const CompareAnswersInputSchema = z
+  .object({
+    question: z.string().trim().min(1).max(300),
+    answerA: z.string().trim().min(1).max(400),
+    answerB: z.string().trim().min(1).max(400),
+  })
+  .strict();
+export type CompareAnswersInput = z.infer<typeof CompareAnswersInputSchema>;
+
+/** Decide whether an AI answer should be double-checked. */
+export const ShouldVerifyInputSchema = z
+  .object({ claim: z.string().trim().min(1).max(400) })
+  .strict();
+export type ShouldVerifyInput = z.infer<typeof ShouldVerifyInputSchema>;
+
+/** Improve a simple prompt/instruction. */
+export const ImprovePromptInputSchema = z
+  .object({ prompt: z.string().trim().min(1).max(300) })
+  .strict();
+export type ImprovePromptInput = z.infer<typeof ImprovePromptInputSchema>;

@@ -12,6 +12,8 @@ import type {
   BadgeStatus,
   ParentDashboard,
   HintResult,
+  ActivityInfo,
+  ActivityResult,
 } from "@techquest/shared";
 import { API_BASE } from "./config";
 
@@ -92,6 +94,20 @@ export const requestHint = (input: {
   attempt?: string;
 }): Promise<HintResult> =>
   request<HintResult>("/api/ai/hint", { method: "POST", body: JSON.stringify(input) });
+
+/** The catalog of controlled AI learning activities. */
+export const listAiActivities = (): Promise<ActivityInfo[]> =>
+  request<ActivityInfo[]>("/api/ai/activities");
+
+/** Run one controlled AI learning activity by key. */
+export const runAiActivity = (
+  activity: string,
+  input: Record<string, string>,
+): Promise<ActivityResult> =>
+  request<ActivityResult>(`/api/ai/activities/${activity}`, {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
 
 /** Start or resume a mission for a child. */
 export const startMission = (missionId: string, childId: string): Promise<ChildMissionState> =>
