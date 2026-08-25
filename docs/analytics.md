@@ -14,7 +14,7 @@ Children are learners, not account holders, so we are deliberately careful:
 - **Pseudonymous identifiers only.** A child is referenced by an opaque id
   (`childRef`), a parent by their opaque account id (`userRef`). Both are cuids
   with no personal meaning. The parent is `identify()`-ed by `userRef` only.
-- **Age is coarse.** Only the age *band* (`AGE_8_9` / `AGE_10_12`) is sent.
+- **Age is coarse.** Only the age *band* (`AGE_8_9` / `AGE_10_11` / `AGE_12`) is sent.
 - **No incidental capture.** Autocapture, automatic pageviews, and session
   recording are all **disabled**, so no on-screen text (which could contain a
   nickname) is ever collected. Events are explicit and typed.
@@ -40,7 +40,7 @@ Every event automatically carries a `category` property (below).
 
 | Event | Trigger | Properties | Purpose |
 |---|---|---|---|
-| `child_created` | A learner profile is created | `childRef`, `ageBand` | First activation step; age mix of learners. |
+| `child_created` | A learner profile is created | `childRef`, `ageBand`, `interestCount` | First activation step; age mix of learners and how many interests they chose (a count only — never the categories). |
 
 ### Retention
 

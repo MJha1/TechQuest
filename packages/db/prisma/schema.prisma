@@ -30,7 +30,19 @@ datasource db {
 /// Coarse age bands (kept coarse on purpose to reduce identifying granularity).
 enum AgeBand {
   AGE_8_9
-  AGE_10_12
+  AGE_10_11
+  AGE_12
+}
+
+/// Non-identifying interest categories a parent can pick during onboarding, used
+/// only to tailor and recommend content — never a source of personal data.
+enum Interest {
+  GAMES
+  SCIENCE
+  STORIES
+  SPORTS
+  ART
+  BUILDING
 }
 
 /// Interaction types a mission step can render.
@@ -165,6 +177,7 @@ model Child {
   parent        User      @relation(fields: [parentId], references: [id], onDelete: Cascade)
   nickname      String
   ageBand       AgeBand
+  interests     Interest[] // non-identifying preferences, used only to tailor content
   avatar        String? // preset avatar identifier, never an uploaded photo
   level         Int       @default(1)
   xp            Int       @default(0)

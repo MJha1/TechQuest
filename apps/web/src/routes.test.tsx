@@ -25,6 +25,7 @@ const CHILD: Child = {
   parentId: "parent_A",
   nickname: "Nova",
   ageBand: "AGE_8_9",
+  interests: [],
   avatar: "🦊",
   level: 1,
   xp: 0,

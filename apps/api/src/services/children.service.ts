@@ -19,6 +19,7 @@ function toWire(c: DbChild): Child {
     parentId: c.parentId,
     nickname: c.nickname,
     ageBand: c.ageBand as Child["ageBand"],
+    interests: c.interests as Child["interests"],
     avatar: c.avatar,
     level: c.level,
     xp: c.xp,
@@ -49,6 +50,7 @@ export async function createChildForParent(
       parentId,
       nickname: input.nickname,
       ageBand: input.ageBand,
+      interests: input.interests ?? [],
       avatar: input.avatar ?? null,
     },
   });

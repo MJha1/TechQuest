@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { AgeBand, FeedbackKind } from "./enums.js";
+import { AgeBand, FeedbackKind, Interest } from "./enums.js";
 import { JsonSchema } from "./json.js";
 
 /**
@@ -13,6 +13,11 @@ import { JsonSchema } from "./json.js";
 const cuid = z.string().cuid();
 const nickname = z.string().trim().min(2).max(20);
 const avatar = z.string().trim().max(64);
+// A de-duplicated set of interest categories (each of the six may appear once).
+const interests = z
+  .array(Interest)
+  .max(Interest.options.length)
+  .transform((v) => [...new Set(v)]);
 
 // ── Parent product feedback ───────────────────────────────────────────────────
 
@@ -50,6 +55,8 @@ export const CreateChildSchema = z
   .object({
     nickname,
     ageBand: AgeBand,
+    // Optional to keep onboarding low-friction; defaults to none.
+    interests: interests.optional().default([]),
     avatar: avatar.optional(),
   })
   .strict();
@@ -59,6 +66,7 @@ export const UpdateChildSchema = z
   .object({
     nickname: nickname.optional(),
     ageBand: AgeBand.optional(),
+    interests: interests.optional(),
     avatar: avatar.optional(),
   })
   .strict()

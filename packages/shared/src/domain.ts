@@ -1,6 +1,7 @@
 import { z } from "zod";
 import {
   AgeBand,
+  Interest,
   FeedbackKind,
   LearningEventType,
   MissionStatus,
@@ -64,6 +65,8 @@ export const ChildSchema = z.object({
   parentId: z.string(),
   nickname: z.string(),
   ageBand: AgeBand,
+  // Defaulted so older payloads (pre-interests) still validate.
+  interests: z.array(Interest).default([]),
   avatar: z.string().nullable(),
   level: z.number().int(),
   xp: z.number().int(),

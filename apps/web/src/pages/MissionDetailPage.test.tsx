@@ -16,7 +16,7 @@ vi.mock("react-router-dom", async (importOriginal) => {
 });
 
 const CHILD: Child = {
-  id: "child_A", parentId: "parent_A", nickname: "Nova", ageBand: "AGE_8_9", avatar: "🦊",
+  id: "child_A", parentId: "parent_A", nickname: "Nova", ageBand: "AGE_8_9", interests: [], avatar: "🦊",
   level: 1, xp: 0, streak: 0, longestStreak: 0, lastActiveAt: null,
   createdAt: "2026-01-01T00:00:00.000Z", updatedAt: "2026-01-01T00:00:00.000Z",
 };

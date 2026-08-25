@@ -1,14 +1,16 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ParentCredentialsSchema } from "@techquest/shared";
+import { Sparkles, ShieldCheck, Compass } from "lucide-react";
+import { APP_NAME, ParentCredentialsSchema } from "@techquest/shared";
 import { signUp } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
+import { OnboardingLayout } from "@/components/onboarding/OnboardingLayout";
 import { track } from "@/lib/analytics";
 
 /**
- * Parent signup. Collects only what an account needs — email + password. No
- * child data and no extra personal details are gathered here.
- * On success the parent continues to Create Child.
+ * Parent signup — step 1 of onboarding. Collects only what an account needs
+ * (email + password); no child data and no extra personal details. On success
+ * the parent continues to Create Child.
  */
 export default function SignupPage() {
   const navigate = useNavigate();
@@ -50,13 +52,13 @@ export default function SignupPage() {
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center p-8">
-      <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-5" noValidate>
-        <div className="space-y-1 text-center">
-          <h1 className="text-3xl font-bold tracking-tight">Create your account</h1>
-          <p className="text-sm text-muted-foreground">Parents sign up to get started.</p>
-        </div>
-
+    <OnboardingLayout
+      step={0}
+      title="Create your account"
+      subtitle="You're the account holder. Next, you'll set up a learner profile for your child."
+      aside={<SignupAside />}
+    >
+      <form onSubmit={handleSubmit} className="space-y-5" noValidate>
         <div className="space-y-2">
           <label htmlFor="email" className="text-sm font-medium">Email</label>
           <input
@@ -79,14 +81,13 @@ export default function SignupPage() {
             onChange={(e) => setPassword(e.target.value)}
             className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
           />
+          <p className="text-xs text-muted-foreground">At least 8 characters.</p>
         </div>
 
-        {error && (
-          <p role="alert" className="text-sm text-red-600">{error}</p>
-        )}
+        {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
 
         <Button type="submit" className="w-full" disabled={submitting}>
-          {submitting ? "Creating account…" : "Sign up"}
+          {submitting ? "Creating account…" : "Continue"}
         </Button>
 
         <p className="text-center text-sm text-muted-foreground">
@@ -94,6 +95,47 @@ export default function SignupPage() {
           <Link to="/login" className="underline">Log in</Link>
         </p>
       </form>
-    </main>
+    </OnboardingLayout>
+  );
+}
+
+/** What/who/why reassurance shown alongside signup. */
+function SignupAside() {
+  const points = [
+    {
+      icon: Compass,
+      title: `What ${APP_NAME} is`,
+      body: "Short, playful missions that teach kids how AI and technology actually work.",
+    },
+    {
+      icon: Sparkles,
+      title: "Who it's for",
+      body: "Curious children aged 8–12 — guided by you, no child logins required.",
+    },
+    {
+      icon: ShieldCheck,
+      title: "Why it matters",
+      body: "Kids grow up surrounded by AI. TechQuest helps them understand and question it, not just use it.",
+    },
+  ];
+  return (
+    <div className="max-w-sm space-y-6">
+      <p className="text-2xl font-bold leading-snug" style={{ fontFamily: "var(--font-display)" }}>
+        Help your child become AI-ready by learning through play and building.
+      </p>
+      <ul className="space-y-4">
+        {points.map((p) => (
+          <li key={p.title} className="flex items-start gap-3">
+            <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg bg-white/15">
+              <p.icon className="size-4" />
+            </span>
+            <div>
+              <p className="font-semibold">{p.title}</p>
+              <p className="text-sm opacity-90">{p.body}</p>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }

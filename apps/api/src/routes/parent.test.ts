@@ -56,7 +56,7 @@ beforeEach(() => {
 
   h.store.child.push(
     { id: "child_A", parentId: "parent_A", nickname: "Nova", ageBand: "AGE_8_9", avatar: "🦊", level: 2, xp: 180, streak: 1, longestStreak: 1, lastActiveAt: at(5), createdAt: at(0), updatedAt: at(5) },
-    { id: "child_B", parentId: "parent_B", nickname: "Pix", ageBand: "AGE_10_12", avatar: null, level: 1, xp: 0, streak: 0, longestStreak: 0, lastActiveAt: null, createdAt: at(0), updatedAt: at(0) },
+    { id: "child_B", parentId: "parent_B", nickname: "Pix", ageBand: "AGE_10_11", avatar: null, level: 1, xp: 0, streak: 0, longestStreak: 0, lastActiveAt: null, createdAt: at(0), updatedAt: at(0) },
   );
   h.store.mission.push(
     { id: "m1", slug: "how-ai-learns", title: "How AI Learns", subtitle: null, concept: "Examples → Patterns → Prediction", description: null, order: 1, estimatedMinutes: 9, isPublished: true, createdAt: at(0), updatedAt: at(0) },

@@ -35,7 +35,7 @@ vi.mock("@/lib/api", () => ({
 
 function child(overrides: Partial<Child> = {}): Child {
   return {
-    id: "child_1", parentId: "parent_1", nickname: "Nova", ageBand: "AGE_8_9", avatar: "🦊",
+    id: "child_1", parentId: "parent_1", nickname: "Nova", ageBand: "AGE_8_9", interests: [], avatar: "🦊",
     level: 3, xp: 120, streak: 5, longestStreak: 5, lastActiveAt: null,
     createdAt: "2026-01-01T00:00:00.000Z", updatedAt: "2026-01-01T00:00:00.000Z",
     ...overrides,

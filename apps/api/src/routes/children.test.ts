@@ -12,6 +12,7 @@ type Row = {
   parentId: string;
   nickname: string;
   ageBand: string;
+  interests: string[];
   avatar: string | null;
   level: number;
   xp: number;
@@ -48,6 +49,7 @@ vi.mock("@techquest/db", () => ({
           parentId: String(data.parentId),
           nickname: String(data.nickname),
           ageBand: String(data.ageBand),
+          interests: (data.interests as string[] | undefined) ?? [],
           avatar: (data.avatar as string | null) ?? null,
           level: 1,
           xp: 0,
@@ -88,6 +90,7 @@ beforeEach(() => {
       parentId: "parent_A",
       nickname: "Nova",
       ageBand: "AGE_8_9",
+      interests: [],
       avatar: null,
       level: 1,
       xp: 0,
@@ -101,7 +104,8 @@ beforeEach(() => {
       id: "child_B",
       parentId: "parent_B",
       nickname: "Pixel",
-      ageBand: "AGE_10_12",
+      ageBand: "AGE_10_11",
+      interests: [],
       avatar: null,
       level: 1,
       xp: 0,
@@ -133,12 +137,13 @@ describe("POST /api/children", () => {
   it("creates a child owned by the authenticated parent", async () => {
     const res = await request(appAs("parent_A"))
       .post("/api/children")
-      .send({ nickname: "Sprocket", ageBand: "AGE_8_9", avatar: "🤖" });
+      .send({ nickname: "Sprocket", ageBand: "AGE_8_9", interests: ["GAMES", "BUILDING"], avatar: "🤖" });
     expect(res.status).toBe(201);
     expect(res.body.data).toMatchObject({
       parentId: "parent_A",
       nickname: "Sprocket",
       ageBand: "AGE_8_9",
+      interests: ["GAMES", "BUILDING"],
       avatar: "🤖",
       level: 1,
       xp: 0,

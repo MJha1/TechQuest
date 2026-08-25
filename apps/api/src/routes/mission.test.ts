@@ -101,7 +101,7 @@ function seed() {
 
   h.store.child.push(
     { id: "child_A", parentId: "parent_A", nickname: "Nova", ageBand: "AGE_8_9", avatar: null, level: 1, xp: 0, streak: 0, longestStreak: 0, lastActiveAt: null, createdAt: now(), updatedAt: now() },
-    { id: "child_B", parentId: "parent_B", nickname: "Pix", ageBand: "AGE_10_12", avatar: null, level: 1, xp: 0, streak: 0, longestStreak: 0, lastActiveAt: null, createdAt: now(), updatedAt: now() },
+    { id: "child_B", parentId: "parent_B", nickname: "Pix", ageBand: "AGE_10_11", avatar: null, level: 1, xp: 0, streak: 0, longestStreak: 0, lastActiveAt: null, createdAt: now(), updatedAt: now() },
   );
 
   h.store.mission.push(

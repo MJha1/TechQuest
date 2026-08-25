@@ -11,7 +11,7 @@ import type { AgeBand } from "@techquest/shared";
  *  - No child PII is ever sent. We never pass nicknames, full names, emails, or
  *    avatars. Children are referenced only by a pseudonymous id (`childRef`),
  *    and parents by their pseudonymous account id (`userRef`) — both opaque cuids.
- *  - Age is sent only as a coarse band (AGE_8_9 / AGE_10_12), never a birth date.
+ *  - Age is sent only as a coarse band (AGE_8_9 / AGE_10_11 / AGE_12), never a birth date.
  *  - Autocapture, pageview capture, and session recording are disabled so no
  *    DOM text (which could contain a nickname) is ever collected.
  *  - `sanitize_properties` strips any accidentally-included PII key as a backstop.
@@ -38,7 +38,7 @@ export interface EventPropertyMap {
   signup_started: Record<string, never>;
   signup_completed: { userRef: string };
   // Activation
-  child_created: { childRef: string; ageBand: AgeBand };
+  child_created: { childRef: string; ageBand: AgeBand; interestCount: number };
   // Retention
   child_home_viewed: { childRef: string };
   // Engagement

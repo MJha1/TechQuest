@@ -12,8 +12,19 @@ import { z } from "zod";
  * name (value + type namespaces), so callers can validate and type off one name.
  */
 
-export const AgeBand = z.enum(["AGE_8_9", "AGE_10_12"]);
+export const AgeBand = z.enum(["AGE_8_9", "AGE_10_11", "AGE_12"]);
 export type AgeBand = z.infer<typeof AgeBand>;
+
+/** Non-identifying interest categories collected during onboarding. */
+export const Interest = z.enum([
+  "GAMES",
+  "SCIENCE",
+  "STORIES",
+  "SPORTS",
+  "ART",
+  "BUILDING",
+]);
+export type Interest = z.infer<typeof Interest>;
 
 export const MissionStepType = z.enum([
   "INTRO",

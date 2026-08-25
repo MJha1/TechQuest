@@ -45,7 +45,7 @@ describe("SignupPage", () => {
     renderPage();
 
     fillForm("parent@example.com", "supersecret");
-    fireEvent.click(screen.getByRole("button", { name: /sign up/i }));
+    fireEvent.click(screen.getByRole("button", { name: /continue/i }));
 
     await waitFor(() =>
       expect(signUpEmail).toHaveBeenCalledWith(
@@ -59,7 +59,7 @@ describe("SignupPage", () => {
     renderPage();
 
     fillForm("not-an-email", "supersecret");
-    fireEvent.click(screen.getByRole("button", { name: /sign up/i }));
+    fireEvent.click(screen.getByRole("button", { name: /continue/i }));
 
     expect(await screen.findByRole("alert")).toBeInTheDocument();
     expect(signUpEmail).not.toHaveBeenCalled();
@@ -71,7 +71,7 @@ describe("SignupPage", () => {
     renderPage();
 
     fillForm("parent@example.com", "supersecret");
-    fireEvent.click(screen.getByRole("button", { name: /sign up/i }));
+    fireEvent.click(screen.getByRole("button", { name: /continue/i }));
 
     expect(await screen.findByText(/already exists/i)).toBeInTheDocument();
     expect(navigateMock).not.toHaveBeenCalled();

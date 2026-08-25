@@ -3,9 +3,11 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import CreateChildPage from "./CreateChildPage";
 
-const { navigateMock, createChildMock } = vi.hoisted(() => ({
+const { navigateMock, createChildMock, setActiveChildMock, refreshMock } = vi.hoisted(() => ({
   navigateMock: vi.fn(),
   createChildMock: vi.fn(),
+  setActiveChildMock: vi.fn(),
+  refreshMock: vi.fn().mockResolvedValue(undefined),
 }));
 
 vi.mock("react-router-dom", async (importOriginal) => {
@@ -21,6 +23,10 @@ vi.mock("@/lib/api", () => ({
   ApiRequestError: class ApiRequestError extends Error {},
 }));
 
+vi.mock("@/context/ChildContext", () => ({
+  useChildContext: () => ({ setActiveChild: setActiveChildMock, refresh: refreshMock }),
+}));
+
 function renderPage() {
   render(
     <MemoryRouter>
@@ -32,30 +38,36 @@ function renderPage() {
 beforeEach(() => {
   navigateMock.mockReset();
   createChildMock.mockReset();
+  setActiveChildMock.mockReset();
+  refreshMock.mockClear();
 });
 
 describe("CreateChildPage", () => {
-  it("creates a child and continues to the parent dashboard", async () => {
-    createChildMock.mockResolvedValue({ id: "child_1", nickname: "Nova" });
+  it("creates a child with age band + interests and enters the child's home", async () => {
+    const created = { id: "child_1", nickname: "Nova", ageBand: "AGE_10_11", interests: ["GAMES"] };
+    createChildMock.mockResolvedValue(created);
     renderPage();
 
     fireEvent.change(screen.getByLabelText(/nickname/i), { target: { value: "Nova" } });
-    fireEvent.change(screen.getByLabelText(/age range/i), { target: { value: "AGE_10_12" } });
-    fireEvent.click(screen.getByRole("button", { name: /create profile/i }));
+    fireEvent.click(screen.getByRole("radio", { name: "10–11" }));
+    fireEvent.click(screen.getByRole("button", { name: /games/i }));
+    fireEvent.click(screen.getByRole("button", { name: /start learning/i }));
 
     await waitFor(() =>
       expect(createChildMock).toHaveBeenCalledWith(
-        expect.objectContaining({ nickname: "Nova", ageBand: "AGE_10_12" }),
+        expect.objectContaining({ nickname: "Nova", ageBand: "AGE_10_11", interests: ["GAMES"] }),
       ),
     );
-    await waitFor(() => expect(navigateMock).toHaveBeenCalledWith("/parent"));
+    // Sets the new child active, then routes into their space to start mission 1.
+    await waitFor(() => expect(setActiveChildMock).toHaveBeenCalledWith(created));
+    expect(navigateMock).toHaveBeenCalledWith("/child");
   });
 
   it("rejects a too-short nickname without calling the API", async () => {
     renderPage();
 
     fireEvent.change(screen.getByLabelText(/nickname/i), { target: { value: "x" } });
-    fireEvent.click(screen.getByRole("button", { name: /create profile/i }));
+    fireEvent.click(screen.getByRole("button", { name: /start learning/i }));
 
     expect(await screen.findByRole("alert")).toBeInTheDocument();
     expect(createChildMock).not.toHaveBeenCalled();
