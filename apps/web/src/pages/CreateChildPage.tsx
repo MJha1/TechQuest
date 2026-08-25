@@ -105,7 +105,7 @@ export default function CreateChildPage() {
             value={nickname}
             onChange={(e) => setNickname(e.target.value)}
             placeholder="What should we call them?"
-            className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+            className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm outline-none transition-colors focus:border-ring focus:ring-2 focus:ring-ring/30"
           />
           <p className="text-xs text-muted-foreground">A fun nickname — not their real name.</p>
         </div>

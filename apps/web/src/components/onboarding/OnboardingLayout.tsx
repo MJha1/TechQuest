@@ -59,8 +59,8 @@ export function OnboardingLayout({
   aside,
   children,
 }: {
-  /** Zero-based index into ONBOARDING_STEPS. */
-  step: number;
+  /** Zero-based index into ONBOARDING_STEPS. Omit to hide the stepper (e.g. login). */
+  step?: number;
   title: string;
   subtitle?: string;
   /** The reassurance panel content (what/who/why for this step). */
@@ -86,8 +86,8 @@ export function OnboardingLayout({
         </Link>
 
         <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center py-10">
-          <Stepper current={step} />
-          <div className="mt-8 space-y-1">
+          {step !== undefined && <Stepper current={step} />}
+          <div className={cn("space-y-1", step !== undefined && "mt-8")}>
             <h1 className="text-3xl font-bold tracking-tight" style={{ fontFamily: "var(--font-display)" }}>
               {title}
             </h1>

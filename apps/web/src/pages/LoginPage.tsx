@@ -1,12 +1,15 @@
 import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ParentCredentialsSchema } from "@techquest/shared";
+import { Sparkles, ShieldCheck, Compass } from "lucide-react";
+import { APP_NAME, ParentCredentialsSchema } from "@techquest/shared";
 import { signIn } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
+import { OnboardingLayout } from "@/components/onboarding/OnboardingLayout";
 
 /**
- * Parent login. On success the parent lands on Child Home, where they pick or
- * add a learner.
+ * Parent login. Shares the branded onboarding shell (without the stepper) so the
+ * returning-parent entry point feels like the same product as signup. On success
+ * the parent lands on their dashboard.
  */
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -40,13 +43,12 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center p-8">
-      <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-5" noValidate>
-        <div className="space-y-1 text-center">
-          <h1 className="text-3xl font-bold tracking-tight">Welcome back</h1>
-          <p className="text-sm text-muted-foreground">Log in to your parent account.</p>
-        </div>
-
+    <OnboardingLayout
+      title="Welcome back"
+      subtitle="Log in to your parent account to see your child's progress."
+      aside={<LoginAside />}
+    >
+      <form onSubmit={handleSubmit} className="space-y-5" noValidate>
         <div className="space-y-2">
           <label htmlFor="email" className="text-sm font-medium">Email</label>
           <input
@@ -55,7 +57,7 @@ export default function LoginPage() {
             autoComplete="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+            className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm outline-none transition-colors focus:border-ring focus:ring-2 focus:ring-ring/30"
           />
         </div>
 
@@ -67,13 +69,11 @@ export default function LoginPage() {
             autoComplete="current-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+            className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm outline-none transition-colors focus:border-ring focus:ring-2 focus:ring-ring/30"
           />
         </div>
 
-        {error && (
-          <p role="alert" className="text-sm text-red-600">{error}</p>
-        )}
+        {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
 
         <Button type="submit" className="w-full" disabled={submitting}>
           {submitting ? "Logging in…" : "Log in"}
@@ -84,6 +84,35 @@ export default function LoginPage() {
           <Link to="/signup" className="underline">Create an account</Link>
         </p>
       </form>
-    </main>
+    </OnboardingLayout>
+  );
+}
+
+/** Reassurance shown alongside login — mirrors the signup aside for cohesion. */
+function LoginAside() {
+  const points = [
+    { icon: Compass, title: "Pick up where they left off", body: "Your child's missions, XP, and streak are saved and waiting." },
+    { icon: Sparkles, title: "See what they've learned", body: "Plain-language progress and questions to ask at home." },
+    { icon: ShieldCheck, title: "You're in control", body: "Children are profiles, not accounts — no child logins, minimal data." },
+  ];
+  return (
+    <div className="max-w-sm space-y-6">
+      <p className="text-2xl font-bold leading-snug" style={{ fontFamily: "var(--font-display)" }}>
+        Welcome back to {APP_NAME}.
+      </p>
+      <ul className="space-y-4">
+        {points.map((p) => (
+          <li key={p.title} className="flex items-start gap-3">
+            <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg bg-white/15">
+              <p.icon className="size-4" />
+            </span>
+            <div>
+              <p className="font-semibold">{p.title}</p>
+              <p className="text-sm opacity-90">{p.body}</p>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }

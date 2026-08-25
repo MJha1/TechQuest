@@ -12,6 +12,15 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { XPDisplay } from "@/components/XPDisplay";
 import { LoadingState } from "@/components/ui/loading-state";
+import { ErrorState } from "@/components/ui/error-state";
+
+/** Humanize a badge slug for display (e.g. "first-explorer" → "First Explorer"). */
+function badgeLabel(slug: string): string {
+  return slug
+    .split("-")
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
+}
 
 /**
  * Mission complete — finalizes the mission via the (idempotent) complete
@@ -23,12 +32,17 @@ export default function MissionCompletePage() {
   const { activeChild, refresh } = useChildContext();
   const child = activeChild!;
   const [result, setResult] = useState<CompleteResult | null>(null);
+  const [error, setError] = useState(false);
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
     let active = true;
+    setError(false);
+    setResult(null);
     completeMission(missionId!, child.id)
       .then((r) => {
-        if (active) setResult(r);
+        if (!active) return;
+        setResult(r);
         // Fire once — completion is idempotent, so skip when already recorded.
         if (!r.alreadyCompleted) {
           track("mission_completed", {
@@ -43,17 +57,24 @@ export default function MissionCompletePage() {
         void refresh(); // keep parent-side child totals fresh
       })
       .catch(() => {
-        /* leave in loading; the mission list still reflects progress */
+        // Never strand the child on a spinner — show a friendly retry instead.
+        if (active) setError(true);
       });
     return () => {
       active = false;
     };
-  }, [missionId, child.id, refresh]);
+  }, [missionId, child.id, refresh, attempt]);
 
   return (
     <AppShell experience="child" items={childNav} title="Mission complete">
       <div className="mx-auto max-w-md">
-        {!result ? (
+        {error ? (
+          <ErrorState
+            title="We couldn't wrap up your mission"
+            description="Your progress is saved. Let's try again."
+            onRetry={() => setAttempt((a) => a + 1)}
+          />
+        ) : !result ? (
           <LoadingState label="Wrapping up…" />
         ) : (
           <Card>
@@ -73,6 +94,25 @@ export default function MissionCompletePage() {
                 You earned XP and moved closer to the next level.
               </p>
               <XPDisplay xp={result.child.xp} level={result.child.level} size="large" className="w-full" />
+
+              {result.badges.length > 0 && (
+                <div className="w-full rounded-xl border border-xp/40 bg-xp/10 p-4">
+                  <p className="text-sm font-semibold text-xp-foreground">
+                    {result.badges.length === 1 ? "New badge unlocked!" : "New badges unlocked!"}
+                  </p>
+                  <ul className="mt-2 flex flex-wrap justify-center gap-2">
+                    {result.badges.map((slug) => (
+                      <li
+                        key={slug}
+                        className="flex items-center gap-1.5 rounded-full bg-card px-3 py-1 text-sm font-medium shadow-sm"
+                      >
+                        <span aria-hidden>🏅</span> {badgeLabel(slug)}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
               <div className="flex gap-2">
                 <Button asChild variant="outline">
                   <Link to="/child">Home</Link>
