@@ -4,6 +4,7 @@ import {
   track,
   initAnalytics,
   identifyParent,
+  analyticsReady,
   EVENT_CATEGORY,
   type AnalyticsEvent,
 } from "./analytics";
@@ -40,9 +41,10 @@ describe("analytics runtime", () => {
     expect(capture).not.toHaveBeenCalled();
   });
 
-  it("initializes PostHog with privacy-safe options", () => {
+  it("initializes PostHog with privacy-safe options", async () => {
     vi.stubEnv("VITE_POSTHOG_KEY", "phc_test");
     initAnalytics();
+    await analyticsReady(); // posthog is loaded via dynamic import
     expect(init).toHaveBeenCalledWith(
       "phc_test",
       expect.objectContaining({
@@ -53,9 +55,10 @@ describe("analytics runtime", () => {
     );
   });
 
-  it("captures typed events tagged with their category", () => {
+  it("captures typed events tagged with their category", async () => {
     capture.mockClear();
     track("mission_completed", { childRef: "child_x", missionSlug: "how-ai-learns", score: 100 });
+    await analyticsReady();
     expect(capture).toHaveBeenCalledWith(
       "mission_completed",
       expect.objectContaining({
@@ -67,17 +70,19 @@ describe("analytics runtime", () => {
     );
   });
 
-  it("never sends PII, even if a caller includes it", () => {
+  it("never sends PII, even if a caller includes it", async () => {
     capture.mockClear();
     // @ts-expect-error — nickname is not a valid property; also stripped at runtime.
     track("child_created", { childRef: "child_x", ageBand: "AGE_8_9", nickname: "RealName" });
+    await analyticsReady();
     const props = capture.mock.calls[0]![1] as Record<string, unknown>;
     expect(props).not.toHaveProperty("nickname");
     expect(props.childRef).toBe("child_x");
   });
 
-  it("identifies the parent pseudonymously", () => {
+  it("identifies the parent pseudonymously", async () => {
     identifyParent("user_abc");
+    await analyticsReady();
     expect(identify).toHaveBeenCalledWith("user_abc");
   });
 });

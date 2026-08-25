@@ -61,6 +61,13 @@ const h = vi.hoisted(() => {
         rows.push(row);
         return row;
       },
+      createMany: async ({ data }: { data: Record<string, unknown>[] }) => {
+        for (const d of data) {
+          seq += 1;
+          rows.push({ id: `${prefix}_${seq}`, createdAt: new Date(), updatedAt: new Date(), ...d } as Row);
+        }
+        return { count: data.length };
+      },
       update: async ({ where, data }: { where: { id: string }; data: Record<string, unknown> }) => {
         const row = rows.find((r) => r.id === where.id)!;
         Object.assign(row, data, { updatedAt: new Date() });

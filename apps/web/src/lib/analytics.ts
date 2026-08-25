@@ -1,4 +1,4 @@
-import posthog from "posthog-js";
+import type { PostHog } from "posthog-js";
 import type { AgeBand } from "@techquest/shared";
 
 /**
@@ -86,8 +86,15 @@ export const EVENT_CATEGORY: Record<AnalyticsEvent, AnalyticsCategory> = {
 };
 
 // ── Runtime ──────────────────────────────────────────────────────────────────
+//
+// PostHog is loaded LAZILY via dynamic import so ~160 kB of analytics SDK stays
+// out of the initial bundle (it is non-critical for first paint, and a no-op
+// without a configured key). Events fired before the SDK finishes loading are
+// queued on the load promise; nothing is dropped.
 
 let enabled = false;
+let ph: PostHog | null = null;
+let ready: Promise<void> | null = null;
 
 /** Keys we refuse to send even if a caller accidentally includes them. */
 const PII_KEYS = new Set(["nickname", "name", "email", "fullName", "avatar", "firstName", "lastName"]);
@@ -102,29 +109,50 @@ function stripPii(props: Record<string, unknown>): Record<string, unknown> {
 
 /** Initialize PostHog once, at app startup. No-op without a configured key. */
 export function initAnalytics(): void {
-  if (enabled) return;
+  if (ready) return;
   const key = import.meta.env.VITE_POSTHOG_KEY as string | undefined;
   if (!key) return;
-
-  posthog.init(key, {
-    api_host: (import.meta.env.VITE_POSTHOG_HOST as string) ?? "https://us.i.posthog.com",
-    autocapture: false, // never capture DOM text (could contain a nickname)
-    capture_pageview: false, // we send explicit, typed events instead
-    disable_session_recording: true,
-    person_profiles: "identified_only",
-    sanitize_properties: (props) => stripPii(props ?? {}),
-  });
   enabled = true;
+
+  // Dynamic import → posthog-js is fetched in its own chunk after the app is
+  // interactive, not in the critical path.
+  ready = import("posthog-js")
+    .then(({ default: posthog }) => {
+      posthog.init(key, {
+        api_host: (import.meta.env.VITE_POSTHOG_HOST as string) ?? "https://us.i.posthog.com",
+        autocapture: false, // never capture DOM text (could contain a nickname)
+        capture_pageview: false, // we send explicit, typed events instead
+        disable_session_recording: true,
+        person_profiles: "identified_only",
+        sanitize_properties: (props) => stripPii(props ?? {}),
+      });
+      ph = posthog;
+    })
+    .catch(() => {
+      enabled = false; // analytics stays a no-op if the SDK fails to load
+    });
+}
+
+/** Run an action once PostHog has loaded (or immediately if it already has). */
+function withPosthog(fn: (posthog: PostHog) => void): void {
+  if (!enabled) return;
+  if (ph) fn(ph);
+  else void ready?.then(() => ph && fn(ph));
+}
+
+/** Resolves when the SDK has finished loading (or immediately). For tests/flush. */
+export function analyticsReady(): Promise<void> {
+  return ready ?? Promise.resolve();
 }
 
 /** Identify the parent by their pseudonymous account id (never email/name). */
 export function identifyParent(userRef: string): void {
-  if (enabled) posthog.identify(userRef);
+  withPosthog((posthog) => posthog.identify(userRef));
 }
 
 /** Clear identity (e.g. on logout). */
 export function resetAnalytics(): void {
-  if (enabled) posthog.reset();
+  withPosthog((posthog) => posthog.reset());
 }
 
 type NoProps = Record<string, never>;
@@ -139,8 +167,9 @@ type TrackArgs<E extends AnalyticsEvent> = EventPropertyMap[E] extends NoProps
 export function track<E extends AnalyticsEvent>(...args: TrackArgs<E>): void {
   const [event, props] = args as [E, EventPropertyMap[E] | undefined];
   if (!enabled) return;
-  posthog.capture(event, {
+  const payload = {
     ...stripPii((props ?? {}) as Record<string, unknown>),
     category: EVENT_CATEGORY[event],
-  });
+  };
+  withPosthog((posthog) => posthog.capture(event, payload));
 }

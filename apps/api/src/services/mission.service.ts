@@ -187,25 +187,50 @@ export async function getMissionDetail(missionId: string): Promise<MissionDetail
   return { ...serializeMission(mission), steps: steps.map(serializeServedStep) };
 }
 
-/** Every published mission joined with a child's progress. */
+/**
+ * Every published mission joined with a child's progress.
+ *
+ * Uses a fixed, small number of bulk queries (not a per-mission N+1 loop): the
+ * step counts and the child's completed-step counts are fetched once and grouped
+ * in memory. This keeps the child-home load fast even over a high-latency DB
+ * connection.
+ */
 export async function listChildMissions(childId: string): Promise<ChildMissionSummary[]> {
   const missions = await prisma.mission.findMany({
     where: { isPublished: true },
     orderBy: { order: "asc" },
   });
-  const childMissions = await prisma.childMission.findMany({ where: { childId } });
+  const missionIds = missions.map((m) => m.id);
 
-  const summaries: ChildMissionSummary[] = [];
-  for (const mission of missions) {
+  const [childMissions, steps, childSteps] = await Promise.all([
+    prisma.childMission.findMany({ where: { childId } }),
+    prisma.missionStep.findMany({
+      where: { missionId: { in: missionIds } },
+      select: { id: true, missionId: true },
+    }),
+    prisma.childMissionStep.findMany({
+      where: { childId },
+      select: { childMissionId: true, status: true },
+    }),
+  ]);
+
+  const totalStepsByMission = new Map<string, number>();
+  for (const s of steps) {
+    totalStepsByMission.set(s.missionId, (totalStepsByMission.get(s.missionId) ?? 0) + 1);
+  }
+  const completedStepsByCm = new Map<string, number>();
+  for (const cs of childSteps) {
+    if (cs.status === "COMPLETED") {
+      completedStepsByCm.set(cs.childMissionId, (completedStepsByCm.get(cs.childMissionId) ?? 0) + 1);
+    }
+  }
+
+  return missions.map((mission) => {
     const cm = childMissions.find((x) => x.missionId === mission.id) ?? null;
-    const steps = await prisma.missionStep.findMany({ where: { missionId: mission.id } });
-    const childSteps = cm
-      ? await prisma.childMissionStep.findMany({ where: { childMissionId: cm.id } })
-      : [];
-    summaries.push({
+    return {
       mission: serializeMission(mission),
-      totalSteps: steps.length,
-      completedSteps: childSteps.filter((s) => s.status === "COMPLETED").length,
+      totalSteps: totalStepsByMission.get(mission.id) ?? 0,
+      completedSteps: cm ? completedStepsByCm.get(cm.id) ?? 0 : 0,
       progress: cm
         ? {
             status: cm.status,
@@ -214,9 +239,8 @@ export async function listChildMissions(childId: string): Promise<ChildMissionSu
             completedAt: iso(cm.completedAt),
           }
         : null,
-    });
-  }
-  return summaries;
+    };
+  });
 }
 
 // ── Progress mutations ────────────────────────────────────────────────────────
@@ -233,17 +257,17 @@ async function ensureChildMission(childId: string, missionId: string): Promise<D
     where: { missionId },
     orderBy: { order: "asc" },
   });
-  for (const s of steps) {
-    await prisma.childMissionStep.create({
-      data: {
-        childId,
-        childMissionId: cm.id,
-        missionStepId: s.id,
-        status: "NOT_STARTED",
-        attempts: 0,
-      },
-    });
-  }
+  // Insert all step rows in one round-trip (was a per-step N+1, which made
+  // starting a mission slow over a high-latency connection).
+  await prisma.childMissionStep.createMany({
+    data: steps.map((s) => ({
+      childId,
+      childMissionId: cm.id,
+      missionStepId: s.id,
+      status: "NOT_STARTED" as const,
+      attempts: 0,
+    })),
+  });
   await prisma.learningEvent.create({
     data: { childId, missionId, type: "MISSION_STARTED" },
   });
