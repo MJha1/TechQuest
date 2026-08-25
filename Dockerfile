@@ -38,7 +38,13 @@ COPY packages/db/package.json ./packages/db/
 RUN npm ci
 
 # Build: shared → db (prisma generate + tsc) → api (tsc) → web (vite).
-# VITE_* are intentionally unset → the frontend calls the API same-origin.
+# The frontend calls the API same-origin, so VITE_API_URL stays empty. PostHog
+# is optional and client-side, so its (public) project key is a build arg baked
+# into the web bundle here — it never reaches the runtime stage.
+ARG VITE_POSTHOG_KEY=""
+ARG VITE_POSTHOG_HOST="https://us.i.posthog.com"
+ENV VITE_POSTHOG_KEY=$VITE_POSTHOG_KEY \
+    VITE_POSTHOG_HOST=$VITE_POSTHOG_HOST
 COPY . .
 RUN npm run build
 
