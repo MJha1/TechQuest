@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Rocket, Shield, Sparkles, ArrowRight } from "lucide-react";
-import { APP_NAME } from "@techquest/shared";
+import { APP_NAME, APP_TAGLINE } from "@techquest/shared";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { track } from "@/lib/analytics";
@@ -104,7 +104,10 @@ export default function LandingPage() {
           >
             <Rocket className="size-4" />
           </span>
-          {APP_NAME}
+          <span className="flex flex-col leading-none">
+            {APP_NAME}
+            <span className="hidden text-[11px] font-medium text-muted-foreground sm:block">{APP_TAGLINE}</span>
+          </span>
         </span>
         <nav className="flex items-center gap-2">
           <ThemeToggle />
@@ -322,7 +325,7 @@ export default function LandingPage() {
       {/* Footer */}
       <footer className="border-t border-border">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-2 px-6 py-6 text-sm text-muted-foreground sm:flex-row">
-          <span>{APP_NAME} — technology & AI learning for kids 8–12.</span>
+          <span>{APP_NAME} — {APP_TAGLINE} Technology & AI learning for kids 8–12.</span>
           <Link to="/login" className="underline">Parent log in</Link>
         </div>
       </footer>

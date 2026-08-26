@@ -39,7 +39,7 @@ describe("LandingPage", () => {
   it("renders all the required sections", () => {
     renderPage();
     for (const heading of [
-      /techquest in 4 steps/i, // How it works
+      /byte buddies in 4 steps/i, // How it works
       /tap a real mission/i, // Interactive sample
       /real ideas, one mission at a time/i, // What Children Learn
       /what you'll see/i, // What Parents See
@@ -68,7 +68,7 @@ describe("LandingPage", () => {
 
   it("has the primary and secondary CTAs", () => {
     renderPage();
-    const tryLinks = screen.getAllByRole("link", { name: /try techquest/i });
+    const tryLinks = screen.getAllByRole("link", { name: /try byte buddies/i });
     expect(tryLinks.length).toBeGreaterThan(0);
     expect(tryLinks[0]).toHaveAttribute("href", "/signup");
     expect(screen.getAllByRole("button", { name: /see how it works/i }).length).toBeGreaterThan(0);
@@ -79,7 +79,7 @@ describe("LandingPage", () => {
 
   it("tracks cta_clicked for the primary and secondary CTAs", () => {
     renderPage();
-    fireEvent.click(screen.getAllByRole("link", { name: /try techquest/i })[0]!);
+    fireEvent.click(screen.getAllByRole("link", { name: /try byte buddies/i })[0]!);
     expect(trackMock).toHaveBeenCalledWith("cta_clicked", expect.objectContaining({ cta: expect.any(String) }));
 
     fireEvent.click(screen.getAllByRole("button", { name: /see how it works/i })[0]!);

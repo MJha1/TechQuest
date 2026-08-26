@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { CheckCircle2, MessageSquare } from "lucide-react";
+import { APP_NAME } from "@techquest/shared";
 import { parentNav } from "@/lib/nav";
 import { submitFeedback } from "@/lib/api";
 import { track } from "@/lib/analytics";
@@ -62,12 +63,12 @@ export default function ParentFeedbackPage() {
               <div className="flex flex-col items-center gap-3 py-6 text-center" role="status">
                 <CheckCircle2 className="size-10 text-success" />
                 <p className="font-semibold">Thank you!</p>
-                <p className="text-sm text-muted-foreground">Your feedback helps us improve TechQuest.</p>
+                <p className="text-sm text-muted-foreground">Your feedback helps us improve {APP_NAME}.</p>
               </div>
             ) : (
               <>
                 <div>
-                  <p className="mb-2 text-sm font-medium">How is TechQuest working for your family?</p>
+                  <p className="mb-2 text-sm font-medium">How is {APP_NAME} working for your family?</p>
                   <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                     {RATINGS.map((r) => (
                       <button

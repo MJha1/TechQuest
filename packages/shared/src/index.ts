@@ -5,7 +5,10 @@
  * here, so request/response shapes are defined exactly once.
  */
 
-export const APP_NAME = "TechQuest" as const;
+export const APP_NAME = "Byte Buddies" as const;
+
+/** Short parent-facing tagline shown alongside the wordmark and in page meta. */
+export const APP_TAGLINE = "Where kids befriend AI." as const;
 
 export * from "./json.js";
 export * from "./enums.js";

@@ -17,6 +17,7 @@ import type {
   ActivityResult,
   ParentFeedbackResult,
 } from "@techquest/shared";
+import { APP_NAME } from "@techquest/shared";
 import { API_BASE } from "./config";
 
 /** Error carrying a safe, machine-readable failure code. Never wraps a raw error. */
@@ -65,7 +66,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     // Offline, DNS failure, connection reset, request aborted — no server reply.
     throw new ApiRequestError(
       "NETWORK",
-      "We couldn't reach TechQuest. Please check your connection and try again.",
+      `We couldn't reach ${APP_NAME}. Please check your connection and try again.`,
     );
   }
 

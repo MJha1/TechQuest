@@ -123,7 +123,7 @@ function SignupAside() {
     {
       icon: ShieldCheck,
       title: "Why it matters",
-      body: "Kids grow up surrounded by AI. TechQuest helps them understand and question it, not just use it.",
+      body: `Kids grow up surrounded by AI. ${APP_NAME} helps them understand and question it, not just use it.`,
     },
   ];
   return (

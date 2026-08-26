@@ -14,7 +14,7 @@ import {
 
 describe("shared contracts", () => {
   it("exposes the app name", () => {
-    expect(APP_NAME).toBe("TechQuest");
+    expect(APP_NAME).toBe("Byte Buddies");
   });
 
   it("validates a well-formed health payload", () => {
