@@ -5,6 +5,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { track } from "@/lib/analytics";
 import { cn } from "@/lib/utils";
 import { RobotMascot } from "@/components/landing/illustrations";
+import worriedParent from "@/assets/worried-parent.png";
 
 /**
  * A little "to the rescue" story for the landing page: a worried parent
@@ -31,8 +32,12 @@ export function RescueStory({
             <span className="absolute -bottom-2 left-1/2 size-3 -translate-x-1/2 rounded-full bg-muted" aria-hidden />
             <span className="absolute -bottom-4 left-[45%] size-1.5 rounded-full bg-muted" aria-hidden />
           </div>
-          <div className="mt-6 text-6xl" aria-hidden>😟</div>
-          <p className="mt-2 text-sm text-muted-foreground">Every parent, right about now.</p>
+          <img
+            src={worriedParent}
+            alt="A parent"
+            className="mx-auto mt-6 size-28 rounded-full object-cover shadow-md ring-4 ring-background"
+          />
+          <p className="mt-3 text-sm text-muted-foreground">Every parent, right about now.</p>
         </div>
       </div>
 
