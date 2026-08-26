@@ -238,7 +238,10 @@ export default function MissionDetailPage() {
       }
       footer={footer}
     >
-      <StepActivity step={step} value={value} onChange={setValue} disabled={answered} result={result} />
+      {/* Keyed so each step's activity re-plays the entrance as the child advances. */}
+      <div key={step.id} className="animate-rise-in">
+        <StepActivity step={step} value={value} onChange={setValue} disabled={answered} result={result} />
+      </div>
     </MissionPlayerLayout>
   );
 }

@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { ServedStep, AnswerResult, MissionStepType } from "@techquest/shared";
 import { CheckCircle2, XCircle, Sparkles, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Confetti } from "@/components/ui/confetti";
 
 /**
  * Reusable, data-driven mission-step renderers.
@@ -92,9 +93,31 @@ export interface StepActivityProps {
 /** The center "current learning activity". Renders content, inputs, feedback. */
 export function StepActivity({ step, value, onChange, disabled, result }: StepActivityProps) {
   const meta = stepMeta(step);
+  // Reward feedback: a confetti burst + a floating "+XP" chip fire when a
+  // positive result arrives (a correct graded answer, or a completed open step).
+  const [burst, setBurst] = useState(0);
+  const [xpFloat, setXpFloat] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (result && (result.correct === true || result.correct === null)) {
+      setBurst((b) => b + 1);
+      if (result.xpAwarded > 0) {
+        setXpFloat(result.xpAwarded);
+        const t = setTimeout(() => setXpFloat(null), 1200);
+        return () => clearTimeout(t);
+      }
+    }
+  }, [result]);
 
   return (
-    <div className="space-y-5">
+    <div className="relative space-y-5">
+      <Confetti trigger={burst} />
+      {xpFloat !== null && (
+        <span className="pointer-events-none absolute right-1 top-0 z-10 animate-xp-float rounded-full bg-xp px-2.5 py-1 text-sm font-bold text-xp-foreground shadow-md">
+          +{xpFloat} XP
+        </span>
+      )}
+
       <div>
         <p className="text-xs font-semibold uppercase tracking-wide text-primary">{meta.eyebrow}</p>
         {step.title && (
@@ -104,7 +127,7 @@ export function StepActivity({ step, value, onChange, disabled, result }: StepAc
         )}
       </div>
 
-      <StepBody step={step} response={value} onChange={onChange} disabled={disabled} />
+      <StepBody step={step} response={value} onChange={onChange} disabled={disabled} result={result} />
 
       {result && <Feedback result={result} />}
     </div>
@@ -150,11 +173,13 @@ function StepBody({
   response,
   onChange,
   disabled,
+  result,
 }: {
   step: ServedStep;
   response: Record<string, unknown>;
   onChange: (r: Record<string, unknown>) => void;
   disabled: boolean;
+  result: AnswerResult | null;
 }) {
   switch (step.type) {
     case "INTRO":
@@ -190,6 +215,15 @@ function StepBody({
           <div className="flex flex-col gap-3">
             {c.options.map((opt, i) => {
               const isSel = selected === opt.id;
+              // Once answered, the chosen card reflects the verdict: green when
+              // correct, a gentle red shake when not. Kind, never harsh.
+              const stateClass = isSel
+                ? result
+                  ? result.correct
+                    ? "border-success bg-success/10 shadow-sm"
+                    : "border-destructive bg-destructive/10 animate-shake"
+                  : "border-primary bg-primary/10 shadow-sm"
+                : "border-border";
               return (
                 <label
                   key={opt.id}
@@ -197,7 +231,7 @@ function StepBody({
                     "group flex cursor-pointer items-center gap-4 rounded-2xl border-2 p-4 transition-all duration-150",
                     "hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-md active:scale-[0.99]",
                     "has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring",
-                    isSel ? "border-primary bg-primary/10 shadow-sm" : "border-border",
+                    stateClass,
                   )}
                 >
                   <input

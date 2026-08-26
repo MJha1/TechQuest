@@ -10,6 +10,8 @@ import { AppShell } from "@/components/layout/AppShell";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Confetti } from "@/components/ui/confetti";
+import { ProgressBar } from "@/components/ui/progress-bar";
 import { XPDisplay } from "@/components/XPDisplay";
 import { LoadingState } from "@/components/ui/loading-state";
 import { ErrorState, CHILD_ERROR } from "@/components/ui/error-state";
@@ -77,7 +79,9 @@ export default function MissionCompletePage() {
         ) : !result ? (
           <LoadingState label="Wrapping up…" />
         ) : (
-          <Card>
+          <Card className="relative">
+            {/* Celebrate a fresh completion (not a refresh of an already-done one). */}
+            <Confetti trigger={result.alreadyCompleted ? 0 : 1} pieces={28} />
             <CardContent className="flex flex-col items-center gap-4 p-8 text-center">
               <div
                 className="flex size-16 animate-pop items-center justify-center rounded-full text-primary-foreground"
@@ -87,13 +91,22 @@ export default function MissionCompletePage() {
                 <PartyPopper className="size-8 animate-float" />
               </div>
               <h2 className="text-2xl font-bold" style={{ fontFamily: "var(--font-display)" }}>
-                Nice work!
+                Nice work! 🎉
               </h2>
               <Badge variant="success">Score {result.score}%</Badge>
               <p className="text-muted-foreground">
                 You earned XP and moved closer to the next level.
               </p>
               <XPDisplay xp={result.child.xp} level={result.child.level} size="large" className="w-full" />
+              <div className="w-full">
+                <ProgressBar
+                  value={result.child.xp % 100}
+                  max={100}
+                  tone="xp"
+                  label={`Level ${result.child.level} · ${100 - (result.child.xp % 100)} XP to level ${result.child.level + 1}`}
+                  showValue
+                />
+              </div>
 
               {result.badges.length > 0 && (
                 <div className="w-full rounded-xl border border-xp/40 bg-xp/10 p-4">
