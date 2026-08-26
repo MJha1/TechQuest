@@ -80,11 +80,11 @@ export default function MissionCompletePage() {
           <Card>
             <CardContent className="flex flex-col items-center gap-4 p-8 text-center">
               <div
-                className="flex size-16 items-center justify-center rounded-full text-primary-foreground"
+                className="flex size-16 animate-pop items-center justify-center rounded-full text-primary-foreground"
                 style={{ backgroundImage: "var(--gradient-brand)" }}
                 aria-hidden
               >
-                <PartyPopper className="size-8" />
+                <PartyPopper className="size-8 animate-float" />
               </div>
               <h2 className="text-2xl font-bold" style={{ fontFamily: "var(--font-display)" }}>
                 Nice work!
@@ -101,10 +101,11 @@ export default function MissionCompletePage() {
                     {result.badges.length === 1 ? "New badge unlocked!" : "New badges unlocked!"}
                   </p>
                   <ul className="mt-2 flex flex-wrap justify-center gap-2">
-                    {result.badges.map((slug) => (
+                    {result.badges.map((slug, i) => (
                       <li
                         key={slug}
-                        className="flex items-center gap-1.5 rounded-full bg-card px-3 py-1 text-sm font-medium shadow-sm"
+                        className="flex animate-pop items-center gap-1.5 rounded-full bg-card px-3 py-1 text-sm font-medium shadow-sm"
+                        style={{ animationDelay: `${120 + i * 90}ms` }}
                       >
                         <span aria-hidden>🏅</span> {badgeLabel(slug)}
                       </li>

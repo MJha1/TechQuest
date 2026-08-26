@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { Menu } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 /**
  * Sticky page header: an optional mobile menu toggle, the page title, and a
@@ -42,7 +43,10 @@ export function TopBar({
           {title}
         </h1>
       )}
-      {right && <div className="ml-auto flex items-center gap-2 sm:gap-3">{right}</div>}
+      <div className="ml-auto flex items-center gap-2 sm:gap-3">
+        {right}
+        <ThemeToggle />
+      </div>
     </header>
   );
 }

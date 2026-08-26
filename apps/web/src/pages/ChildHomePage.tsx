@@ -1,10 +1,11 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Play, Sparkles, Trophy } from "lucide-react";
-import type { BadgeStatus, ChildMissionSummary } from "@techquest/shared";
+import type { ChildMissionSummary } from "@techquest/shared";
 import { useChildContext } from "@/context/ChildContext";
 import { childNav } from "@/lib/nav";
 import { listChildBadges, listChildMissions } from "@/lib/api";
+import { useCachedResource } from "@/lib/useCachedResource";
 import { track } from "@/lib/analytics";
 import { AppShell } from "@/components/layout/AppShell";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -51,23 +52,21 @@ export default function ChildHomePage() {
   const child = activeChild!; // guaranteed by RequireChild
   const navigate = useNavigate();
 
-  const [missions, setMissions] = useState<ChildMissionSummary[] | null>(null);
-  const [badges, setBadges] = useState<BadgeStatus[] | null>(null);
-  const [error, setError] = useState(false);
+  // Cached (stale-while-revalidate): revisiting the home shows the last data
+  // instantly and revalidates in the background. The missions key is shared with
+  // the Missions page, so navigating between them is instant.
+  const missionsRes = useCachedResource(`child-missions:${child.id}`, () =>
+    listChildMissions(child.id),
+  );
+  const badgesRes = useCachedResource(`child-badges:${child.id}`, () => listChildBadges(child.id));
+  const missions = missionsRes.data ?? null;
+  const badges = badgesRes.data ?? null;
+  const error = missionsRes.error || badgesRes.error;
+  const load = () => {
+    missionsRes.reload();
+    badgesRes.reload();
+  };
 
-  function load() {
-    setError(false);
-    setMissions(null);
-    setBadges(null);
-    Promise.all([listChildMissions(child.id), listChildBadges(child.id)])
-      .then(([m, b]) => {
-        setMissions(m);
-        setBadges(b);
-      })
-      .catch(() => setError(true));
-  }
-
-  useEffect(load, [child.id]);
   useEffect(() => track("child_home_viewed", { childRef: child.id }), [child.id]);
 
   const todays = useMemo(() => (missions ? pickTodaysMission(missions) : null), [missions]);

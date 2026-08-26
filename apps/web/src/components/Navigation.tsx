@@ -36,17 +36,38 @@ export function Navigation({
           onClick={onNavigate}
           className={({ isActive }) =>
             cn(
-              "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+              "group relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-150",
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
               isActive
                 ? "bg-secondary text-secondary-foreground"
-                : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                : "text-muted-foreground hover:translate-x-0.5 hover:bg-muted hover:text-foreground",
             )
           }
         >
-          {Icon && <Icon className="size-5 shrink-0" aria-hidden />}
-          <span className="flex-1 truncate">{label}</span>
-          {badge}
+          {({ isActive }) => (
+            <>
+              {/* Active accent bar on the left edge. */}
+              <span
+                aria-hidden
+                className={cn(
+                  "absolute left-0 top-1/2 h-5 w-1 -translate-y-1/2 rounded-r-full bg-primary transition-all duration-200",
+                  isActive ? "opacity-100" : "opacity-0",
+                )}
+              />
+              {Icon && (
+                <Icon
+                  className={cn(
+                    "size-5 shrink-0 transition-colors",
+                    isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground",
+                  )}
+                  aria-hidden
+                />
+              )}
+              <span className="flex-1 truncate">{label}</span>
+              {badge}
+              {isActive && <span aria-hidden className="size-1.5 rounded-full bg-primary" />}
+            </>
+          )}
         </NavLink>
       ))}
     </nav>

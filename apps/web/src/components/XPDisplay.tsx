@@ -1,5 +1,6 @@
 import { Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useCountUp } from "@/lib/useCountUp";
 
 /**
  * Experience-points readout. `compact` is a chip for the top bar; `large` is a
@@ -17,7 +18,8 @@ export function XPDisplay({
   size?: "compact" | "large";
   className?: string;
 }) {
-  const xpLabel = `${xp.toLocaleString()} XP`;
+  const shownXp = useCountUp(xp);
+  const xpLabel = `${shownXp.toLocaleString()} XP`;
 
   if (size === "large") {
     return (
@@ -28,7 +30,7 @@ export function XPDisplay({
         )}
         style={{ backgroundImage: "var(--gradient-xp)" }}
       >
-        <Sparkles className="size-8 shrink-0" aria-hidden />
+        <Sparkles className="size-8 shrink-0 animate-float" aria-hidden />
         <div>
           <p className="text-2xl font-bold leading-tight" style={{ fontFamily: "var(--font-display)" }}>
             {xpLabel}

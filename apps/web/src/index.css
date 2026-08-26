@@ -3,114 +3,123 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * TechQuest design tokens.
+ * TechQuest design tokens — "Rethink" palette, light + dark.
  *
- * One cohesive brand — a friendly modern violet with an energetic coral accent
- * and dedicated reward colors (gold XP, flame streak). The child and parent
- * experiences share these tokens; a `data-experience` scope shifts radius/ring
- * so child surfaces feel rounder and more energetic while parent surfaces stay
- * calm and professional. Playfulness comes from composition + gradients, not a
- * separate theme.
+ * `:root` is the light theme; `.dark` (below) is the dark, near-black Rethink
+ * theme. A pre-paint script in index.html applies `.dark` by default (the app is
+ * dark-first) and the header ThemeToggle flips + persists the choice. Both share
+ * one spring-green primary and blue/purple secondary accents; the child and
+ * parent experiences share these tokens (a `data-experience` scope only shifts
+ * radius). Type: Inter for body, Plus Jakarta Sans for display headings.
  */
 :root {
-  --background: hsl(255 60% 99%);
-  --foreground: hsl(240 24% 12%);
+  --background: hsl(210 40% 98%);
+  --foreground: hsl(220 28% 14%);
 
   --card: hsl(0 0% 100%);
-  --card-foreground: hsl(240 24% 12%);
+  --card-foreground: hsl(220 28% 14%);
   --popover: hsl(0 0% 100%);
-  --popover-foreground: hsl(240 24% 12%);
+  --popover-foreground: hsl(220 28% 14%);
 
-  --primary: hsl(255 80% 60%);
+  /* Spring-green primary — deepened for contrast on light surfaces. */
+  --primary: hsl(157 62% 38%);
   --primary-foreground: hsl(0 0% 100%);
 
-  --secondary: hsl(255 45% 96%);
-  --secondary-foreground: hsl(256 40% 32%);
+  --secondary: hsl(200 32% 94%);
+  --secondary-foreground: hsl(220 30% 24%);
 
-  --muted: hsl(240 22% 96%);
-  --muted-foreground: hsl(240 10% 42%);
+  --muted: hsl(210 30% 95%);
+  --muted-foreground: hsl(216 12% 42%);
 
-  --accent: hsl(340 82% 62%);
+  /* Secondary vivid accent — Aurora blue. */
+  --accent: hsl(205 85% 46%);
   --accent-foreground: hsl(0 0% 100%);
 
-  --destructive: hsl(0 78% 58%);
+  --destructive: hsl(0 72% 52%);
   --destructive-foreground: hsl(0 0% 100%);
-  --success: hsl(150 60% 40%);
+  --success: hsl(157 58% 36%);
   --success-foreground: hsl(0 0% 100%);
-  --warning: hsl(40 95% 52%);
-  --warning-foreground: hsl(40 70% 14%);
-  --info: hsl(210 90% 56%);
+  --warning: hsl(38 92% 46%);
+  --warning-foreground: hsl(40 70% 12%);
+  --info: hsl(205 85% 46%);
   --info-foreground: hsl(0 0% 100%);
 
   /* Reward semantics */
-  --xp: hsl(42 96% 52%);
+  --xp: hsl(40 95% 48%);
   --xp-foreground: hsl(40 70% 14%);
-  --streak: hsl(18 92% 55%);
+  --streak: hsl(18 88% 50%);
   --streak-foreground: hsl(0 0% 100%);
 
-  --border: hsl(240 22% 90%);
-  --input: hsl(240 22% 90%);
-  --ring: hsl(255 80% 60%);
+  --border: hsl(214 28% 88%);
+  --input: hsl(214 28% 88%);
+  --ring: hsl(157 62% 38%);
 
-  --radius: 0.75rem;
+  --radius: 1rem;
 
-  /* Playful gradients for hero + reward surfaces */
-  --gradient-brand: linear-gradient(135deg, hsl(255 85% 62%), hsl(300 78% 62%));
-  --gradient-xp: linear-gradient(135deg, hsl(45 96% 56%), hsl(28 92% 55%));
-  --gradient-streak: linear-gradient(135deg, hsl(22 94% 58%), hsl(0 84% 60%));
+  /* Brand + reward gradients (shared across themes). */
+  --gradient-brand: linear-gradient(135deg, hsl(157 66% 46%), hsl(185 74% 42%));
+  --gradient-xp: linear-gradient(135deg, hsl(45 96% 52%), hsl(28 92% 52%));
+  --gradient-streak: linear-gradient(135deg, hsl(22 94% 55%), hsl(0 84% 58%));
 
-  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
-    Helvetica, Arial, sans-serif;
-  --font-display: "Fredoka", "Baloo 2", ui-rounded, "Segoe UI", system-ui,
-    sans-serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    Roboto, Helvetica, Arial, sans-serif;
+  --font-display: "Plus Jakarta Sans", "Inter", ui-sans-serif, system-ui,
+    "Segoe UI", sans-serif;
 }
 
+/* Dark, near-black Rethink theme. Applied by default (dark-first) via the
+   pre-paint script in index.html; the ThemeToggle adds/removes this class. */
 .dark {
-  --background: hsl(250 24% 8%);
-  --foreground: hsl(255 30% 96%);
+  --background: hsl(220 26% 7%);
+  --foreground: hsl(216 30% 93%);
 
-  --card: hsl(250 22% 11%);
-  --card-foreground: hsl(255 30% 96%);
-  --popover: hsl(250 22% 11%);
-  --popover-foreground: hsl(255 30% 96%);
+  --card: hsl(220 22% 10%);
+  --card-foreground: hsl(216 30% 93%);
+  --popover: hsl(220 24% 9%);
+  --popover-foreground: hsl(216 30% 93%);
 
-  --primary: hsl(255 85% 70%);
-  --primary-foreground: hsl(250 40% 10%);
+  --primary: hsl(157 66% 52%);
+  --primary-foreground: hsl(220 45% 7%);
 
-  --secondary: hsl(252 22% 18%);
-  --secondary-foreground: hsl(255 30% 92%);
+  --secondary: hsl(220 20% 15%);
+  --secondary-foreground: hsl(216 26% 88%);
 
-  --muted: hsl(250 18% 18%);
-  --muted-foreground: hsl(250 12% 66%);
+  --muted: hsl(220 18% 13%);
+  --muted-foreground: hsl(216 14% 60%);
 
-  --accent: hsl(340 82% 66%);
-  --accent-foreground: hsl(0 0% 100%);
+  --accent: hsl(205 88% 60%);
+  --accent-foreground: hsl(220 45% 7%);
 
   --destructive: hsl(0 72% 60%);
   --destructive-foreground: hsl(0 0% 100%);
-  --success: hsl(150 55% 48%);
-  --success-foreground: hsl(0 0% 100%);
+  --success: hsl(157 64% 50%);
+  --success-foreground: hsl(220 45% 7%);
   --warning: hsl(40 92% 58%);
   --warning-foreground: hsl(40 70% 12%);
-  --info: hsl(210 90% 64%);
-  --info-foreground: hsl(0 0% 100%);
+  --info: hsl(205 88% 60%);
+  --info-foreground: hsl(220 45% 7%);
 
   --xp: hsl(45 95% 58%);
   --xp-foreground: hsl(40 70% 12%);
   --streak: hsl(20 92% 60%);
   --streak-foreground: hsl(0 0% 100%);
 
-  --border: hsl(250 16% 22%);
-  --input: hsl(250 16% 22%);
-  --ring: hsl(255 85% 70%);
+  --border: hsl(216 20% 16%);
+  --input: hsl(216 20% 16%);
+  --ring: hsl(157 66% 52%);
+
+  /* Brighter gradients for the dark surface. */
+  --gradient-brand: linear-gradient(135deg, hsl(157 66% 52%), hsl(185 74% 46%));
+  --gradient-xp: linear-gradient(135deg, hsl(45 96% 56%), hsl(28 92% 55%));
+  --gradient-streak: linear-gradient(135deg, hsl(22 94% 58%), hsl(0 84% 60%));
 }
 
 /* Experience scopes — subtle mood shift, same palette. */
 [data-experience="child"] {
-  --radius: 1.1rem;
+  --radius: 1.25rem;
 }
 [data-experience="parent"] {
-  --radius: 0.625rem;
+  --radius: 0.85rem;
 }
 
 @theme inline {
@@ -152,11 +161,20 @@
   --font-sans: var(--font-sans);
   --font-display: var(--font-display);
 
-  /* Minimal, feedback-oriented motion only. */
+  /* Feedback-oriented motion. Every animation aids understanding or reward;
+     all are disabled under prefers-reduced-motion (see the media query below). */
   --animate-fade-in: fade-in 0.15s ease-out;
   --animate-scale-in: scale-in 0.15s ease-out;
   --animate-toast-in: toast-in 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   --animate-spin-slow: spin 0.8s linear infinite;
+  /* Reward/confirmation: a springy pop-in for badges, feedback, XP. */
+  --animate-pop: pop 0.34s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  /* Gentle "try again" nudge for an incorrect answer — never harsh. */
+  --animate-shake: shake 0.4s ease-in-out;
+  /* Idle bob for hero/mascot flourishes. */
+  --animate-float: float 3.5s ease-in-out infinite;
+  /* List entrance; pair with an inline animation-delay to stagger. */
+  --animate-rise-in: rise-in 0.4s ease-out both;
 }
 
 @keyframes fade-in {
@@ -169,6 +187,26 @@
 }
 @keyframes toast-in {
   from { opacity: 0; transform: translateY(0.5rem); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes pop {
+  0% { opacity: 0; transform: scale(0.8); }
+  60% { transform: scale(1.04); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-5px); }
+  40% { transform: translateX(5px); }
+  60% { transform: translateX(-3px); }
+  80% { transform: translateX(3px); }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+@keyframes rise-in {
+  from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
 

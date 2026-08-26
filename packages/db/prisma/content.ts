@@ -43,6 +43,7 @@ export const missions: SeedMission[] = [
         type: "INTRO",
         title: "Meet a learning machine",
         content: {
+          emoji: "🤖",
           heading: "How does AI learn?",
           body: "AI is a clever computer helper. It does not think the way you do. Instead, it learns by looking at LOTS of examples until it notices a pattern. Ready to see how? Let's go!",
         },
@@ -54,9 +55,9 @@ export const missions: SeedMission[] = [
         content: {
           prompt: "Which sentence describes AI the best?",
           options: [
-            { id: "a", label: "It is born already knowing everything.", correct: false },
-            { id: "b", label: "It learns from examples and spots patterns.", correct: true },
-            { id: "c", label: "It just guesses, with no help at all.", correct: false },
+            { id: "a", emoji: "🎓", label: "It is born already knowing everything.", correct: false },
+            { id: "b", emoji: "🔍", label: "It learns from examples and spots patterns.", correct: true },
+            { id: "c", emoji: "🎲", label: "It just guesses, with no help at all.", correct: false },
           ],
           explanation: "Nice! AI learns from examples and looks for patterns. Then it uses them to help.",
         },
@@ -88,8 +89,8 @@ export const missions: SeedMission[] = [
         content: {
           prompt: "The AI learned the cat pattern. Now it sees a BRAND NEW photo with pointy ears and whiskers. What will it predict?",
           options: [
-            { id: "a", label: "Cat", correct: true },
-            { id: "b", label: "Car", correct: false },
+            { id: "a", emoji: "🐱", label: "Cat", correct: true },
+            { id: "b", emoji: "🚗", label: "Car", correct: false },
           ],
           reveal: "It predicts 'cat' — because the new photo matches the pattern it learned. That is a prediction!",
         },
@@ -101,9 +102,9 @@ export const missions: SeedMission[] = [
         content: {
           prompt: "You want the AI to get REALLY good at spotting cats. What helps it most?",
           options: [
-            { id: "a", label: "Just one photo", correct: false },
-            { id: "b", label: "Lots and lots of cat photos", correct: true },
-            { id: "c", label: "A photo of a sandwich", correct: false },
+            { id: "a", emoji: "🖼️", label: "Just one photo", correct: false },
+            { id: "b", emoji: "🐱", label: "Lots and lots of cat photos", correct: true },
+            { id: "c", emoji: "🥪", label: "A photo of a sandwich", correct: false },
           ],
           explanation: "Exactly! More good examples give the AI more chances to learn the pattern well.",
         },
@@ -115,9 +116,9 @@ export const missions: SeedMission[] = [
         content: {
           prompt: "AI is helpful, but it is not perfect and it can make mistakes. What is the smart thing to do if its answer seems wrong?",
           options: [
-            { id: "a", label: "Believe it no matter what", correct: false },
-            { id: "b", label: "Check with a grown-up or a book you trust", correct: true },
-            { id: "c", label: "Never use a computer again", correct: false },
+            { id: "a", emoji: "🙈", label: "Believe it no matter what", correct: false },
+            { id: "b", emoji: "📚", label: "Check with a grown-up or a book you trust", correct: true },
+            { id: "c", emoji: "🚫", label: "Never use a computer again", correct: false },
           ],
           explanation: "Smart thinkers double-check! AI can make mistakes, so it is good to check tricky answers.",
         },
@@ -149,6 +150,7 @@ export const missions: SeedMission[] = [
         type: "COMPLETION",
         title: "Mission complete!",
         content: {
+          emoji: "🏆",
           heading: "You did it! 🎉",
           body: "You cracked the secret: AI looks at EXAMPLES, finds a PATTERN, and makes a PREDICTION. And remember — AI can make mistakes, so it is smart to check. You are an AI explorer now!",
           parentSummary: "AI can find patterns in examples and use those patterns to make predictions.",
@@ -172,6 +174,7 @@ export const missions: SeedMission[] = [
         type: "INTRO",
         title: "The 'up next' mystery",
         content: {
+          emoji: "📺",
           heading: "How does YouTube know?",
           body: "Apps watch what you tap, like, and finish. Then they recommend more things like it.",
         },
@@ -182,9 +185,9 @@ export const missions: SeedMission[] = [
         content: {
           prompt: "You watched three videos about space. What will the app likely show next?",
           options: [
-            { id: "a", label: "More space videos", correct: true },
-            { id: "b", label: "A random cooking show", correct: false },
-            { id: "c", label: "Nothing at all", correct: false },
+            { id: "a", emoji: "🚀", label: "More space videos", correct: true },
+            { id: "b", emoji: "🍳", label: "A random cooking show", correct: false },
+            { id: "c", emoji: "🚫", label: "Nothing at all", correct: false },
           ],
           explanation: "The app recommends more of what you seemed to enjoy.",
         },
@@ -212,8 +215,8 @@ export const missions: SeedMission[] = [
         content: {
           prompt: "A friend only watches soccer videos. What will their app recommend?",
           options: [
-            { id: "a", label: "More soccer", correct: true },
-            { id: "b", label: "Piano lessons", correct: false },
+            { id: "a", emoji: "⚽", label: "More soccer", correct: true },
+            { id: "b", emoji: "🎹", label: "Piano lessons", correct: false },
           ],
           reveal: "More soccer — the app follows the pattern of what they watch.",
         },
@@ -224,9 +227,9 @@ export const missions: SeedMission[] = [
         content: {
           prompt: "You skip every cooking video you see. What will the app probably do?",
           options: [
-            { id: "a", label: "Show you fewer cooking videos", correct: true },
-            { id: "b", label: "Show you many more cooking videos", correct: false },
-            { id: "c", label: "Delete all cooking videos forever", correct: false },
+            { id: "a", emoji: "📉", label: "Show you fewer cooking videos", correct: true },
+            { id: "b", emoji: "📈", label: "Show you many more cooking videos", correct: false },
+            { id: "c", emoji: "🗑️", label: "Delete all cooking videos forever", correct: false },
           ],
           explanation: "Skipping is a signal too — the app learns to show fewer of those.",
         },
@@ -243,6 +246,7 @@ export const missions: SeedMission[] = [
         type: "COMPLETION",
         title: "Mission complete!",
         content: {
+          emoji: "🏆",
           heading: "Recommendation expert!",
           body: "Apps recommend things by learning what you like. Now the 'up next' magic makes sense.",
           parentSummary: "Apps recommend videos and shows by learning from what your child watches and likes.",
@@ -266,6 +270,7 @@ export const missions: SeedMission[] = [
         type: "INTRO",
         title: "Smart, but not perfect",
         content: {
+          emoji: "🤔",
           heading: "Can AI be wrong?",
           body: "Yes! AI can make mistakes, especially with tricky or new things. Good thinkers check the answer.",
         },
@@ -276,9 +281,9 @@ export const missions: SeedMission[] = [
         content: {
           prompt: "An AI says a tomato is a vegetable. A scientist says it's a fruit. What should you do?",
           options: [
-            { id: "a", label: "Believe the AI no matter what", correct: false },
-            { id: "b", label: "Check a trusted source", correct: true },
-            { id: "c", label: "Guess randomly", correct: false },
+            { id: "a", emoji: "🙈", label: "Believe the AI no matter what", correct: false },
+            { id: "b", emoji: "📚", label: "Check a trusted source", correct: true },
+            { id: "c", emoji: "🎲", label: "Guess randomly", correct: false },
           ],
           explanation: "When answers disagree, check a trusted source.",
         },
@@ -306,8 +311,8 @@ export const missions: SeedMission[] = [
         content: {
           prompt: "You ask an AI the same question twice and get two different answers. What does that tell you?",
           options: [
-            { id: "a", label: "It might be unsure — better to check", correct: true },
-            { id: "b", label: "Both answers must be true", correct: false },
+            { id: "a", emoji: "🔎", label: "It might be unsure — better to check", correct: true },
+            { id: "b", emoji: "🤥", label: "Both answers must be true", correct: false },
           ],
           reveal: "Different answers are a clue the AI might be unsure — a good time to check a trusted source.",
         },
@@ -324,6 +329,7 @@ export const missions: SeedMission[] = [
         type: "COMPLETION",
         title: "Mission complete!",
         content: {
+          emoji: "🧐",
           heading: "Careful thinker!",
           body: "AI can be wrong. Checking answers keeps you smart and safe.",
           parentSummary: "AI can be wrong, so it's smart to check important answers against a trusted source.",
@@ -347,6 +353,7 @@ export const missions: SeedMission[] = [
         type: "INTRO",
         title: "A recipe for computers",
         content: {
+          emoji: "📝",
           heading: "How do computers follow instructions?",
           body: "Computers follow steps in order, exactly as written. A list of steps is called an algorithm.",
         },
@@ -357,9 +364,9 @@ export const missions: SeedMission[] = [
         content: {
           prompt: "Drag the steps to make a sandwich in the right order.",
           items: [
-            { id: "1", label: "Get two slices of bread" },
-            { id: "2", label: "Add the filling" },
-            { id: "3", label: "Put the slices together" },
+            { id: "1", label: "🍞 Get two slices of bread" },
+            { id: "2", label: "🧀 Add the filling" },
+            { id: "3", label: "🥪 Put the slices together" },
           ],
           targets: [
             { id: "step1", label: "First" },
@@ -376,9 +383,9 @@ export const missions: SeedMission[] = [
         content: {
           prompt: "Which instruction is clearest for a computer?",
           options: [
-            { id: "a", label: "'Do the thing'", correct: false },
-            { id: "b", label: "'Turn left, then walk 3 steps'", correct: true },
-            { id: "c", label: "'Go somewhere nice'", correct: false },
+            { id: "a", emoji: "🤷", label: "'Do the thing'", correct: false },
+            { id: "b", emoji: "🧭", label: "'Turn left, then walk 3 steps'", correct: true },
+            { id: "c", emoji: "🌈", label: "'Go somewhere nice'", correct: false },
           ],
           explanation: "Computers need clear, exact steps — no guessing.",
         },
@@ -398,8 +405,8 @@ export const missions: SeedMission[] = [
         content: {
           prompt: "A robot's steps say: (1) Eat the cereal. (2) Pour the milk. (3) Get a bowl. What happens?",
           options: [
-            { id: "a", label: "It makes a mess — the steps are out of order", correct: true },
-            { id: "b", label: "It works perfectly", correct: false },
+            { id: "a", emoji: "😵‍💫", label: "It makes a mess — the steps are out of order", correct: true },
+            { id: "b", emoji: "🤖", label: "It works perfectly", correct: false },
           ],
           reveal: "Out-of-order steps don't work — a computer does exactly what the order says.",
         },
@@ -416,6 +423,7 @@ export const missions: SeedMission[] = [
         type: "COMPLETION",
         title: "Mission complete!",
         content: {
+          emoji: "🏅",
           heading: "Algorithm ace!",
           body: "Computers follow clear, ordered steps. You can write algorithms too!",
           parentSummary: "Computers follow clear, step-by-step instructions (algorithms) in the right order.",
@@ -439,6 +447,7 @@ export const missions: SeedMission[] = [
         type: "INTRO",
         title: "Robots need teaching",
         content: {
+          emoji: "🤖",
           heading: "Teach the robot",
           body: "A robot follows rules and uses data (information) to decide what to do.",
         },
@@ -449,9 +458,9 @@ export const missions: SeedMission[] = [
         content: {
           prompt: "You want a robot to water plants when the soil is dry. What data does it need?",
           options: [
-            { id: "a", label: "How wet the soil is", correct: true },
-            { id: "b", label: "The color of the sky", correct: false },
-            { id: "c", label: "Your favorite song", correct: false },
+            { id: "a", emoji: "💧", label: "How wet the soil is", correct: true },
+            { id: "b", emoji: "🌈", label: "The color of the sky", correct: false },
+            { id: "c", emoji: "🎵", label: "Your favorite song", correct: false },
           ],
           explanation: "The robot needs the right data: how wet the soil is.",
         },
@@ -462,8 +471,8 @@ export const missions: SeedMission[] = [
         content: {
           prompt: "Drag each rule to what the robot should do.",
           items: [
-            { id: "dry", label: "IF soil is dry" },
-            { id: "wet", label: "IF soil is wet" },
+            { id: "dry", label: "🏜️ IF soil is dry" },
+            { id: "wet", label: "💦 IF soil is wet" },
           ],
           targets: [
             { id: "water", label: "Water the plant" },
@@ -479,8 +488,8 @@ export const missions: SeedMission[] = [
         content: {
           prompt: "The rule is: IF it is dark, turn on the light. It is now dark. What does the robot do?",
           options: [
-            { id: "a", label: "Turn on the light", correct: true },
-            { id: "b", label: "Turn off the light", correct: false },
+            { id: "a", emoji: "💡", label: "Turn on the light", correct: true },
+            { id: "b", emoji: "🌑", label: "Turn off the light", correct: false },
           ],
           reveal: "It turns on the light — it follows the rule using the data 'it is dark'.",
         },
@@ -506,6 +515,7 @@ export const missions: SeedMission[] = [
         type: "COMPLETION",
         title: "Mission complete!",
         content: {
+          emoji: "🦾",
           heading: "Robot teacher!",
           body: "Robots use data and rules to act. You just taught one!",
           parentSummary: "Robots use information (data) together with rules to decide what to do.",
@@ -529,6 +539,7 @@ export const missions: SeedMission[] = [
         type: "INTRO",
         title: "Be an AI inventor",
         content: {
+          emoji: "💡",
           heading: "Build your first AI idea",
           body: "Great AI ideas answer five questions: What problem? Who is the user? What is the input? What does the AI do? What is the output?",
         },
@@ -547,8 +558,8 @@ export const missions: SeedMission[] = [
         content: {
           prompt: "Your AI names animals in photos. Who is the user?",
           options: [
-            { id: "a", label: "A kid who loves animals", correct: true },
-            { id: "b", label: "Nobody", correct: false },
+            { id: "a", emoji: "🧒", label: "A kid who loves animals", correct: true },
+            { id: "b", emoji: "🚫", label: "Nobody", correct: false },
           ],
           explanation: "Every good AI idea has a user it helps.",
         },
@@ -575,8 +586,8 @@ export const missions: SeedMission[] = [
         content: {
           prompt: "Your AI gets a photo of a rabbit as input. What is the output?",
           options: [
-            { id: "a", label: "'Rabbit'", correct: true },
-            { id: "b", label: "'Bicycle'", correct: false },
+            { id: "a", emoji: "🐰", label: "'Rabbit'", correct: true },
+            { id: "b", emoji: "🚲", label: "'Bicycle'", correct: false },
           ],
           reveal: "The output is 'Rabbit' — the AI turns the input into a helpful answer.",
         },
@@ -593,6 +604,7 @@ export const missions: SeedMission[] = [
         type: "COMPLETION",
         title: "You're an AI builder!",
         content: {
+          emoji: "🛠️",
           heading: "Amazing work!",
           body: "You designed a real AI idea: problem, user, input, AI, and output. You can build with technology!",
           parentSummary: "A good AI idea starts with a problem, a user, an input, and a helpful output.",

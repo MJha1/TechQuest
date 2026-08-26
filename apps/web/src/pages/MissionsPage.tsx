@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import type { ChildMissionSummary } from "@techquest/shared";
 import { useChildContext } from "@/context/ChildContext";
 import { childNav } from "@/lib/nav";
 import { listChildMissions } from "@/lib/api";
+import { useCachedResource } from "@/lib/useCachedResource";
 import { track } from "@/lib/analytics";
 import { AppShell } from "@/components/layout/AppShell";
 import { MissionCard, type MissionCardStatus } from "@/components/MissionCard";
@@ -28,18 +28,12 @@ export default function MissionsPage() {
   const child = activeChild!;
   const navigate = useNavigate();
 
-  const [missions, setMissions] = useState<ChildMissionSummary[] | null>(null);
-  const [error, setError] = useState(false);
-
-  function load() {
-    setError(false);
-    setMissions(null);
-    listChildMissions(child.id)
-      .then(setMissions)
-      .catch(() => setError(true));
-  }
-
-  useEffect(load, [child.id]);
+  // Shares the `child-missions` cache with the child home, so switching between
+  // the two is instant; only the first load waits on the network.
+  const res = useCachedResource(`child-missions:${child.id}`, () => listChildMissions(child.id));
+  const missions = res.data ?? null;
+  const error = res.error;
+  const load = res.reload;
 
   return (
     <AppShell
@@ -60,13 +54,14 @@ export default function MissionsPage() {
         )}
         {missions && (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {missions.map((m) => {
+            {missions.map((m, i) => {
               const status = statusOf(m);
               const progress =
                 m.totalSteps > 0 ? Math.round((m.completedSteps / m.totalSteps) * 100) : 0;
               return (
                 <MissionCard
                   key={m.mission.id}
+                  index={i}
                   title={m.mission.title}
                   concept={m.mission.concept}
                   status={status}

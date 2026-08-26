@@ -4,11 +4,22 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>TechQuest</title>
-    <!-- Display font for playful headings; body falls back to the system stack. -->
+    <!-- Apply the saved theme before paint (dark-first) to avoid a flash. -->
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem("techquest.theme");
+          if (t !== "light") document.documentElement.classList.add("dark");
+        } catch (e) {
+          document.documentElement.classList.add("dark");
+        }
+      })();
+    </script>
+    <!-- Rethink type system: Inter for body, Plus Jakarta Sans for headings. -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap"
       rel="stylesheet"
     />
   </head>

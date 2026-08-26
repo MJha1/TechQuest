@@ -3,6 +3,7 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import type { Child, BadgeStatus, ChildMissionSummary, Mission } from "@techquest/shared";
 import ChildHomePage from "./ChildHomePage";
+import { clearCache } from "@/lib/useCachedResource";
 
 const { navigateMock, listMissionsMock, listBadgesMock, activeChild } = vi.hoisted(() => ({
   navigateMock: vi.fn(),
@@ -68,6 +69,7 @@ function renderPage() {
 }
 
 beforeEach(() => {
+  clearCache(); // isolate the module-level SWR cache between tests
   navigateMock.mockReset();
   listMissionsMock.mockReset();
   listBadgesMock.mockReset();

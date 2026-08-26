@@ -21,6 +21,8 @@ export interface MissionCardProps {
   icon?: React.ReactNode;
   onAction?: () => void;
   className?: string;
+  /** Position in a list — drives a staggered entrance animation when provided. */
+  index?: number;
 }
 
 const STATUS_META: Record<
@@ -72,6 +74,7 @@ export function MissionCard({
   icon,
   onAction,
   className,
+  index,
 }: MissionCardProps) {
   const meta = STATUS_META[status];
   const CtaIcon = meta.ctaIcon;
@@ -79,18 +82,21 @@ export function MissionCard({
 
   return (
     <Card
+      interactive={!locked}
       className={cn(
-        "flex flex-col gap-4 p-5 transition-shadow",
-        locked ? "opacity-70" : "hover:shadow-md",
+        "group flex flex-col gap-4 p-5",
+        locked && "opacity-70",
+        index !== undefined && "animate-rise-in",
         className,
       )}
+      style={index !== undefined ? { animationDelay: `${index * 60}ms` } : undefined}
       aria-label={`${title} — ${meta.label}`}
     >
       <div className="flex items-start justify-between gap-3">
         <div
           className={cn(
-            "flex size-12 shrink-0 items-center justify-center rounded-xl text-2xl",
-            locked ? "bg-muted text-muted-foreground" : "text-primary-foreground",
+            "flex size-12 shrink-0 items-center justify-center rounded-xl text-2xl transition-transform duration-200 ease-out",
+            locked ? "bg-muted text-muted-foreground" : "text-primary-foreground group-hover:scale-110 group-hover:-rotate-3",
           )}
           style={locked ? undefined : { backgroundImage: "var(--gradient-brand)" }}
           aria-hidden

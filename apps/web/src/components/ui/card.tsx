@@ -1,13 +1,23 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 
+interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
+  /**
+   * Opt-in affordance for clickable cards: a subtle hover lift, an accent
+   * border, and a press response. Leaves static container cards untouched.
+   */
+  interactive?: boolean;
+}
+
 /** Surface container. Uses the theme's radius so it rounds more in the child scope. */
-const Card = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-  ({ className, ...props }, ref) => (
+const Card = React.forwardRef<HTMLDivElement, CardProps>(
+  ({ className, interactive = false, ...props }, ref) => (
     <div
       ref={ref}
       className={cn(
         "rounded-lg border border-border bg-card text-card-foreground shadow-sm",
+        interactive &&
+          "transition-all duration-200 ease-out hover:-translate-y-1 hover:border-primary/40 hover:shadow-lg active:translate-y-0 active:shadow-md",
         className,
       )}
       {...props}

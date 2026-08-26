@@ -18,21 +18,18 @@ import {
 const GRADED = new Set(["CHOICE", "PREDICTION", "DRAG_DROP"]);
 
 export async function getChildRecommendation(childId: string): Promise<Recommendation> {
-  const child = await prisma.child.findUnique({
-    where: { id: childId },
-    select: { ageBand: true, interests: true },
-  });
-  if (!child) throw notFound("Child not found");
-
-  const [missions, childMissions] = await Promise.all([
+  // All five reads in one parallel batch (was three sequential waterfalls): the
+  // step query filters on the mission relation, so nothing depends on the
+  // mission ids first. Cuts the recommendation load to a single round-trip.
+  const [child, missions, childMissions, steps, childSteps] = await Promise.all([
+    prisma.child.findUnique({
+      where: { id: childId },
+      select: { ageBand: true, interests: true },
+    }),
     prisma.mission.findMany({ where: { isPublished: true }, orderBy: { order: "asc" } }),
     prisma.childMission.findMany({ where: { childId } }),
-  ]);
-
-  const missionIds = missions.map((m) => m.id);
-  const [steps, childSteps] = await Promise.all([
     prisma.missionStep.findMany({
-      where: { missionId: { in: missionIds } },
+      where: { mission: { isPublished: true } },
       select: { id: true, missionId: true, type: true },
     }),
     prisma.childMissionStep.findMany({
@@ -40,6 +37,7 @@ export async function getChildRecommendation(childId: string): Promise<Recommend
       select: { missionStepId: true, isCorrect: true },
     }),
   ]);
+  if (!child) throw notFound("Child not found");
 
   // Graded step ids per mission, and this child's correctness per step.
   const gradedByMission = new Map<string, Set<string>>();

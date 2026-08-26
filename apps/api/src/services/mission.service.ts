@@ -196,16 +196,14 @@ export async function getMissionDetail(missionId: string): Promise<MissionDetail
  * connection.
  */
 export async function listChildMissions(childId: string): Promise<ChildMissionSummary[]> {
-  const missions = await prisma.mission.findMany({
-    where: { isPublished: true },
-    orderBy: { order: "asc" },
-  });
-  const missionIds = missions.map((m) => m.id);
-
-  const [childMissions, steps, childSteps] = await Promise.all([
+  // One parallel batch instead of a missions-then-rest waterfall: the step query
+  // filters on the mission relation so it doesn't need the mission ids first.
+  // Over a high-latency DB link this halves the round-trips for the child home.
+  const [missions, childMissions, steps, childSteps] = await Promise.all([
+    prisma.mission.findMany({ where: { isPublished: true }, orderBy: { order: "asc" } }),
     prisma.childMission.findMany({ where: { childId } }),
     prisma.missionStep.findMany({
-      where: { missionId: { in: missionIds } },
+      where: { mission: { isPublished: true } },
       select: { id: true, missionId: true },
     }),
     prisma.childMissionStep.findMany({
@@ -274,41 +272,65 @@ async function ensureChildMission(childId: string, missionId: string): Promise<D
   return cm;
 }
 
-async function buildChildMissionState(
-  childId: string,
-  mission: DbMission,
-): Promise<ChildMissionState> {
-  const steps = await prisma.missionStep.findMany({
-    where: { missionId: mission.id },
-    orderBy: { order: "asc" },
-  });
-  const cm = await prisma.childMission.findFirst({
-    where: { childId, missionId: mission.id },
-  });
-  const childSteps = cm
-    ? await prisma.childMissionStep.findMany({ where: { childMissionId: cm.id } })
-    : [];
-  return {
-    mission: { ...serializeMission(mission), steps: steps.map(serializeServedStep) },
-    status: cm?.status ?? "IN_PROGRESS",
-    score: cm?.score ?? null,
-    startedAt: iso(cm?.startedAt),
-    completedAt: iso(cm?.completedAt),
-    steps: childSteps.map(serializeChildStep),
-  };
-}
-
 /** Start or resume a mission for a child (idempotent — never duplicates). */
 export async function startMission(
   childId: string,
   missionId: string,
 ): Promise<ChildMissionState> {
-  const mission = await prisma.mission.findFirst({
-    where: { id: missionId, isPublished: true },
-  });
+  // Fetch the mission, its steps, and any existing progress in one parallel
+  // batch (was a long sequential waterfall through ensureChildMission +
+  // buildChildMissionState — the slowest path in the app over a remote DB).
+  const [mission, steps, existingCm] = await Promise.all([
+    prisma.mission.findFirst({ where: { id: missionId, isPublished: true } }),
+    prisma.missionStep.findMany({ where: { missionId }, orderBy: { order: "asc" } }),
+    prisma.childMission.findFirst({ where: { childId, missionId } }),
+  ]);
   if (!mission) throw notFound("Mission not found");
-  await ensureChildMission(childId, missionId);
-  return buildChildMissionState(childId, mission);
+
+  let cm = existingCm;
+  let childSteps: ChildStepState[];
+
+  if (cm) {
+    // Resume: just load this child's step progress.
+    const rows = await prisma.childMissionStep.findMany({ where: { childMissionId: cm.id } });
+    childSteps = rows.map(serializeChildStep);
+  } else {
+    // First start: create the child-mission, then its step rows + the started
+    // event in parallel. The fresh step rows are all NOT_STARTED, so we build
+    // their state in memory rather than reading them back (saves a round-trip).
+    cm = await prisma.childMission.create({
+      data: { childId, missionId, status: "IN_PROGRESS", startedAt: new Date() },
+    });
+    await Promise.all([
+      prisma.childMissionStep.createMany({
+        data: steps.map((s) => ({
+          childId,
+          childMissionId: cm!.id,
+          missionStepId: s.id,
+          status: "NOT_STARTED" as const,
+          attempts: 0,
+        })),
+      }),
+      prisma.learningEvent.create({ data: { childId, missionId, type: "MISSION_STARTED" } }),
+    ]);
+    childSteps = steps.map((s) => ({
+      missionStepId: s.id,
+      status: "NOT_STARTED",
+      isCorrect: null,
+      attempts: 0,
+      response: null,
+      completedAt: null,
+    }));
+  }
+
+  return {
+    mission: { ...serializeMission(mission), steps: steps.map(serializeServedStep) },
+    status: cm.status,
+    score: cm.score ?? null,
+    startedAt: iso(cm.startedAt),
+    completedAt: iso(cm.completedAt),
+    steps: childSteps,
+  };
 }
 
 /** Submit an answer to a step; the backend grades it and records progress. */
