@@ -8,7 +8,13 @@ import RequireChild from "@/components/RequireChild";
 // Control the parent session and the child list that the guards depend on.
 const { session } = vi.hoisted(() => ({ session: { current: null as null | { user: object } } }));
 vi.mock("@/lib/auth-client", () => ({
-  useSession: () => ({ data: session.current, isPending: false }),
+  useSession: () => ({
+    data: session.current,
+    isPending: false,
+    isRefetching: false,
+    error: null,
+    refetch: () => Promise.resolve(),
+  }),
 }));
 
 const { listChildrenMock } = vi.hoisted(() => ({ listChildrenMock: vi.fn() }));
