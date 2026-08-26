@@ -4,6 +4,7 @@ import { parentNav } from "@/lib/nav";
 import { submitFeedback } from "@/lib/api";
 import { track } from "@/lib/analytics";
 import { AppShell } from "@/components/layout/AppShell";
+import { SignOutButton } from "@/components/SignOutButton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -43,7 +44,12 @@ export default function ParentFeedbackPage() {
   }
 
   return (
-    <AppShell experience="parent" items={parentNav} title="Feedback">
+    <AppShell
+      experience="parent"
+      items={parentNav}
+      title="Feedback"
+      sidebarFooter={<SignOutButton className="w-full" />}
+    >
       <div className="mx-auto max-w-xl">
         <Card>
           <CardHeader>

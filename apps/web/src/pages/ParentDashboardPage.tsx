@@ -7,6 +7,7 @@ import { parentNav } from "@/lib/nav";
 import { getParentDashboard } from "@/lib/api";
 import { track } from "@/lib/analytics";
 import { AppShell } from "@/components/layout/AppShell";
+import { SignOutButton } from "@/components/SignOutButton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ProgressBar } from "@/components/ui/progress-bar";
@@ -202,7 +203,12 @@ export default function ParentDashboardPage() {
   }
 
   return (
-    <AppShell experience="parent" items={parentNav} title="Dashboard">
+    <AppShell
+      experience="parent"
+      items={parentNav}
+      title="Dashboard"
+      sidebarFooter={<SignOutButton className="w-full" />}
+    >
       <div className="mx-auto max-w-4xl space-y-8">
         <div className="flex items-center justify-between">
           <p className="text-sm text-muted-foreground">
