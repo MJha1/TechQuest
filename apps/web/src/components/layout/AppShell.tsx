@@ -3,6 +3,7 @@ import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { cn } from "@/lib/utils";
 import { Sidebar } from "@/components/Sidebar";
 import { TopBar } from "@/components/TopBar";
+import { ExitToParentButton } from "@/components/ExitToParentButton";
 import type { NavItem } from "@/components/Navigation";
 
 /**
@@ -33,6 +34,18 @@ export function AppShell({
 }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
 
+  // In the child space, always offer a way back to the parent area (where the
+  // account controls, incl. sign-out, live), alongside any page-specific controls.
+  const topRight =
+    experience === "child" ? (
+      <>
+        <ExitToParentButton />
+        {topBarRight}
+      </>
+    ) : (
+      topBarRight
+    );
+
   return (
     <div data-experience={experience} className="min-h-screen bg-background text-foreground">
       {/* Desktop sidebar (fixed column) */}
@@ -61,7 +74,7 @@ export function AppShell({
 
       {/* Main column */}
       <div className="lg:pl-64">
-        <TopBar title={title} right={topBarRight} onMenuClick={() => setDrawerOpen(true)} />
+        <TopBar title={title} right={topRight} onMenuClick={() => setDrawerOpen(true)} />
         <div className="flex">
           <main className={cn("min-w-0 flex-1 p-4 sm:p-6")}>{children}</main>
           {rightPanel && (
