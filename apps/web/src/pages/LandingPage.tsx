@@ -8,6 +8,7 @@ import { track } from "@/lib/analytics";
 import { cn } from "@/lib/utils";
 import { RobotMascot, EmojiTile } from "@/components/landing/illustrations";
 import { TryMission } from "@/components/landing/TryMission";
+import { RescueStory } from "@/components/landing/RescueStory";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useSession } from "@/lib/auth-client";
 
@@ -183,6 +184,13 @@ export default function LandingPage() {
           <span className="absolute bottom-6 left-6 animate-float text-3xl" style={{ animationDelay: "1.6s" }} aria-hidden>💡</span>
         </div>
       </section>
+
+      {/* "To the rescue" story — the emotional hook */}
+      <div className="bg-muted/40">
+        <Section eyebrow="Sound familiar?" title={`${APP_NAME} to the rescue`}>
+          <RescueStory signedIn={signedIn} firstName={firstName} />
+        </Section>
+      </div>
 
       {/* How it works — visual steps */}
       <Section id="how-it-works" eyebrow="How it works" title={`${APP_NAME} in 4 steps`}>
