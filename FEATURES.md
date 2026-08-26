@@ -3,9 +3,12 @@
 TechQuest is an interactive technology & AI learning platform for children aged 8–12.
 This is a consolidated list of the features shipped in the current MVP.
 
+_Last updated: 2026-08-26. Live in production on Railway._
+
 ## 👤 Accounts & Profiles
 
-- **Parent-only authentication** (Better Auth — email + password, session cookies).
+- **Parent-only authentication** (Better Auth — email + password, session cookies)
+  with **sign-out** from the parent area.
 - **Children are profiles, not accounts** — created and managed under a parent
   (COPPA / GDPR-K data minimization by design; no child sign-in exists).
 - **Multiple child profiles per parent**, each storing only non-identifying data:
@@ -66,9 +69,35 @@ ordering**, open challenge, reflection, and completion — emoji-rich and visual
 
 ## 👪 Parent Features
 
-- **Parent dashboard** (overview across children).
-- **Per-child progress** view.
+- **Parent dashboard** — an overview across all children (level, XP, streak,
+  missions completed, learning time, concepts, recent activity, what they
+  learned, and at-home conversation prompts).
+- **Progress report** — a per-learner view of activity, XP, level (with an
+  XP-to-next bar), day streak, missions completed, and a recent-activity feed.
 - **Parent feedback** submission.
+- **Two-way navigation** between the parent and child spaces: a shield-marked
+  **"Exit to parent"** control in the child top bar, and a **"Back to <child>"**
+  link (with the child's avatar) on the dashboard.
+
+## ✨ Engagement & Motion
+
+A consistent, playful, reduced-motion-safe visual language across the kid-facing
+journey — designed to make learning AI feel like an adventure:
+
+- **Missions catalog**: each mission has its own **character emoji** and
+  theme-aware color; characters bob at rest and wiggle + sparkle on hover; the
+  recommended next mission wears a pulsing **"✦ Start here"** ring; completed
+  missions celebrate with a 🎉 pop.
+- **In-mission rewards**: a **confetti burst** and a floating **"+N XP"** on
+  correct answers; the chosen answer turns green (or gently shakes when wrong);
+  each step **rises in** as the child advances.
+- **Mission complete**: confetti and an animated **level-progress bar** toward
+  the next level, plus badge-unlock pops.
+- **Child home**: mission **characters** as hero visuals, staggered card
+  entrances, and popped-in badges.
+- **Onboarding & auth**: a bobbing robot mascot and floating decor on the
+  signup / login / create-child shell, plus a **live avatar preview** and
+  delightful, tactile pickers when creating a learner.
 
 ## 🎨 UX / Frontend
 
@@ -91,5 +120,5 @@ ordering**, open challenge, reflection, and completion — emoji-rich and visual
 - **Learning-analytics events** (append-only): mission/step started & completed,
   XP awarded, level-up, badge earned, streak extended, AI feedback served.
 - Optional **PostHog** product analytics (client-side, build-time).
-- **Deployed on Railway** (multi-stage Docker + PostgreSQL, health checks);
-  unit tests + **Playwright** end-to-end tests.
+- **Deployed on Railway** (multi-stage Docker + PostgreSQL, pre-deploy migrations,
+  health checks); unit tests + **Playwright** end-to-end tests.
