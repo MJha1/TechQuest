@@ -97,6 +97,25 @@ export default function CreateChildPage() {
       aside={<CreateChildAside />}
     >
       <form onSubmit={handleSubmit} className="space-y-6" noValidate>
+        {/* Live preview — updates as the nickname and avatar are chosen. */}
+        <div className="flex items-center gap-4 rounded-2xl border border-border bg-secondary/50 p-4">
+          <div
+            className="flex size-16 items-center justify-center rounded-2xl text-4xl shadow-sm"
+            style={{ backgroundImage: "var(--gradient-brand)" }}
+            aria-hidden
+          >
+            <span className="inline-block animate-float">{avatar}</span>
+          </div>
+          <div className="min-w-0">
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              Say hello to
+            </p>
+            <p className="truncate text-xl font-bold" style={{ fontFamily: "var(--font-display)" }}>
+              {nickname.trim() || "your explorer"}
+            </p>
+          </div>
+        </div>
+
         <div className="space-y-2">
           <label htmlFor="nickname" className="text-sm font-medium">Nickname</label>
           <input
@@ -121,9 +140,9 @@ export default function CreateChildPage() {
                 aria-checked={ageBand === b.value}
                 onClick={() => setAgeBand(b.value)}
                 className={cn(
-                  "rounded-md border px-3 py-2 text-sm font-medium transition-colors",
+                  "rounded-md border px-3 py-2 text-sm font-medium transition-all duration-150 hover:-translate-y-0.5 active:scale-95",
                   ageBand === b.value
-                    ? "border-primary bg-secondary text-secondary-foreground ring-2 ring-ring"
+                    ? "animate-pop border-primary bg-secondary text-secondary-foreground ring-2 ring-ring"
                     : "border-border hover:bg-muted",
                 )}
               >
@@ -150,9 +169,9 @@ export default function CreateChildPage() {
                   aria-pressed={selected}
                   onClick={() => toggleInterest(it.value)}
                   className={cn(
-                    "flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm transition-colors",
+                    "flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm transition-all duration-150 hover:-translate-y-0.5 active:scale-95",
                     selected
-                      ? "border-primary bg-secondary text-secondary-foreground ring-2 ring-ring"
+                      ? "animate-pop border-primary bg-secondary text-secondary-foreground ring-2 ring-ring"
                       : "border-border hover:bg-muted",
                   )}
                 >
@@ -175,8 +194,8 @@ export default function CreateChildPage() {
                 aria-pressed={avatar === emoji}
                 onClick={() => setAvatar(emoji)}
                 className={cn(
-                  "flex h-10 w-10 items-center justify-center rounded-md border text-xl",
-                  avatar === emoji ? "border-primary ring-2 ring-ring" : "border-border",
+                  "flex size-12 items-center justify-center rounded-xl border text-2xl transition-all duration-150 hover:-translate-y-0.5 hover:scale-105 active:scale-95",
+                  avatar === emoji ? "animate-pop border-primary bg-secondary ring-2 ring-ring" : "border-border",
                 )}
               >
                 {emoji}
