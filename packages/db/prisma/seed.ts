@@ -1,7 +1,10 @@
 /**
  * Seeds the launch missions + badges into the database. Content lives in
- * ./content.ts; this file only writes it. Idempotent: missions are upserted by
- * slug and their steps are fully rebuilt each run, so it is safe to re-run.
+ * ./content.ts; this file only writes it. Idempotent AND non-destructive:
+ * missions are upserted by slug and each step is upserted by (missionId, order)
+ * so re-running updates content in place WITHOUT deleting step rows — that keeps
+ * children's per-step progress (ChildMissionStep cascades if a step is deleted).
+ * Any steps beyond the current definition are pruned.
  */
 import { PrismaClient } from "@prisma/client";
 import { missions, badges } from "./content.js";
@@ -51,17 +54,32 @@ async function main() {
       },
     });
 
-    await prisma.missionStep.deleteMany({ where: { missionId: saved.id } });
+    // Upsert each step by its (missionId, order) slot so existing rows keep
+    // their id — deleting a step would cascade-delete children's progress.
+    for (const [index, step] of steps.entries()) {
+      const order = index + 1;
+      await prisma.missionStep.upsert({
+        where: { missionId_order: { missionId: saved.id, order } },
+        update: {
+          type: step.type,
+          title: step.title,
+          content: step.content,
+          xpReward: step.xpReward ?? 10,
+        },
+        create: {
+          missionId: saved.id,
+          order,
+          type: step.type,
+          title: step.title,
+          content: step.content,
+          xpReward: step.xpReward ?? 10,
+        },
+      });
+    }
 
-    await prisma.missionStep.createMany({
-      data: steps.map((step, index) => ({
-        missionId: saved.id,
-        order: index + 1,
-        type: step.type,
-        title: step.title,
-        content: step.content,
-        xpReward: step.xpReward ?? 10,
-      })),
+    // Prune any steps left over from a previously longer version of the mission.
+    await prisma.missionStep.deleteMany({
+      where: { missionId: saved.id, order: { gt: steps.length } },
     });
 
     // eslint-disable-next-line no-console

@@ -71,8 +71,8 @@ export const missions: SeedMission[] = [
           items: [
             { id: "1", label: "🐱 pointy ears, whiskers" },
             { id: "2", label: "🐶 floppy ears, waggy tail" },
-            { id: "3", label: "🐱 pointy ears, whiskers" },
-            { id: "4", label: "🐶 floppy ears, waggy tail" },
+            { id: "3", label: "🐱 stripey fur, likes to pounce" },
+            { id: "4", label: "🐶 wet nose, loves to fetch" },
           ],
           targets: [
             { id: "cats", label: "Cats" },
