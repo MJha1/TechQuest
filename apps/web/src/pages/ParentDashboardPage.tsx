@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { UserPlus, Play, Users, Lightbulb, MessageCircleQuestion, Clock, GraduationCap } from "lucide-react";
+import { UserPlus, Play, Users, Lightbulb, MessageCircleQuestion, Clock, GraduationCap, ArrowLeft } from "lucide-react";
 import type { ParentChildDashboard, ParentDashboard } from "@techquest/shared";
 import { useChildContext } from "@/context/ChildContext";
 import { parentNav } from "@/lib/nav";
@@ -181,7 +181,7 @@ function ChildDashboard({
  * child's learning space.
  */
 export default function ParentDashboardPage() {
-  const { enterChild } = useChildContext();
+  const { enterChild, activeChild } = useChildContext();
   const navigate = useNavigate();
 
   const [data, setData] = useState<ParentDashboard | null>(null);
@@ -214,11 +214,18 @@ export default function ParentDashboardPage() {
           <p className="text-sm text-muted-foreground">
             An overview of your {data && data.children.length === 1 ? "learner's" : "learners'"} progress.
           </p>
-          <Button asChild size="sm">
-            <Link to="/create-child">
-              <UserPlus className="size-4" /> Add learner
-            </Link>
-          </Button>
+          <div className="flex items-center gap-2">
+            {activeChild && (
+              <Button variant="outline" size="sm" onClick={() => navigate("/child")}>
+                <ArrowLeft className="size-4" /> Back to {activeChild.nickname}
+              </Button>
+            )}
+            <Button asChild size="sm">
+              <Link to="/create-child">
+                <UserPlus className="size-4" /> Add learner
+              </Link>
+            </Button>
+          </div>
         </div>
 
         {error && <ErrorState title="We couldn't load your dashboard" onRetry={load} />}

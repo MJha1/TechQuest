@@ -4,10 +4,11 @@ import { MemoryRouter } from "react-router-dom";
 import type { ParentDashboard } from "@techquest/shared";
 import ParentDashboardPage from "./ParentDashboardPage";
 
-const { navigateMock, enterChildMock, getDashboardMock } = vi.hoisted(() => ({
+const { navigateMock, enterChildMock, getDashboardMock, activeChildRef } = vi.hoisted(() => ({
   navigateMock: vi.fn(),
   enterChildMock: vi.fn(),
   getDashboardMock: vi.fn(),
+  activeChildRef: { current: null as unknown },
 }));
 
 vi.mock("react-router-dom", async (importOriginal) => {
@@ -19,7 +20,7 @@ vi.mock("@/context/ChildContext", () => ({
   useChildContext: () => ({
     status: "ready",
     children: [],
-    activeChild: null,
+    activeChild: activeChildRef.current,
     setActiveChild: vi.fn(),
     enterChild: enterChildMock,
     clearActiveChild: vi.fn(),
@@ -69,6 +70,7 @@ beforeEach(() => {
   enterChildMock.mockReset();
   getDashboardMock.mockReset();
   getDashboardMock.mockResolvedValue(DASHBOARD);
+  activeChildRef.current = null;
 });
 
 describe("ParentDashboardPage", () => {
@@ -105,5 +107,18 @@ describe("ParentDashboardPage", () => {
     expect(await screen.findByText(/couldn't load your dashboard/i)).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /try again/i }));
     expect(await screen.findByRole("heading", { name: "Nova" })).toBeInTheDocument();
+  });
+
+  it("shows a 'Back to <child>' link only when a child is active, and it opens the child space", async () => {
+    // No active child → no back link.
+    renderPage();
+    await screen.findByRole("heading", { name: "Nova" });
+    expect(screen.queryByRole("button", { name: /back to/i })).not.toBeInTheDocument();
+
+    // With an active child → the link appears and navigates to /child.
+    activeChildRef.current = { nickname: "Pip" };
+    renderPage();
+    fireEvent.click(await screen.findByRole("button", { name: /back to pip/i }));
+    expect(navigateMock).toHaveBeenCalledWith("/child");
   });
 });
