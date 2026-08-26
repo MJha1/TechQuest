@@ -19,6 +19,12 @@ export interface MissionCardProps {
   estimatedMinutes?: number;
   /** Emoji or icon shown in the tile's badge. */
   icon?: React.ReactNode;
+  /** Character emoji for the tile (takes precedence over `icon`). */
+  emoji?: string;
+  /** CSS gradient for the character tile background (defaults to the brand gradient). */
+  gradient?: string;
+  /** Highlights this card as the recommended next mission ("Start here" + pulse). */
+  isNext?: boolean;
   onAction?: () => void;
   className?: string;
   /** Position in a list — drives a staggered entrance animation when provided. */
@@ -72,6 +78,9 @@ export function MissionCard({
   xpReward,
   estimatedMinutes,
   icon,
+  emoji,
+  gradient,
+  isNext = false,
   onAction,
   className,
   index,
@@ -79,6 +88,8 @@ export function MissionCard({
   const meta = STATUS_META[status];
   const CtaIcon = meta.ctaIcon;
   const locked = status === "locked";
+  const character = emoji ?? icon ?? "🚀";
+  const highlightNext = isNext && !locked;
 
   return (
     <Card
@@ -86,6 +97,7 @@ export function MissionCard({
       className={cn(
         "group flex flex-col gap-4 p-5",
         locked && "opacity-70",
+        highlightNext && "ring-2 ring-primary/40",
         index !== undefined && "animate-rise-in",
         className,
       )}
@@ -93,17 +105,69 @@ export function MissionCard({
       aria-label={`${title} — ${meta.label}`}
     >
       <div className="flex items-start justify-between gap-3">
-        <div
-          className={cn(
-            "flex size-12 shrink-0 items-center justify-center rounded-xl text-2xl transition-transform duration-200 ease-out",
-            locked ? "bg-muted text-muted-foreground" : "text-primary-foreground group-hover:scale-110 group-hover:-rotate-3",
+        <div className="relative">
+          {/* Pulsing ring: draws the eye to the recommended next mission. */}
+          {highlightNext && (
+            <span
+              className="pointer-events-none absolute inset-0 rounded-xl ring-2 ring-primary animate-pulse-ring"
+              aria-hidden
+            />
           )}
-          style={locked ? undefined : { backgroundImage: "var(--gradient-brand)" }}
-          aria-hidden
-        >
-          {locked ? <Lock className="size-5" /> : (icon ?? "🚀")}
+          <div
+            className={cn(
+              "flex size-12 shrink-0 items-center justify-center rounded-xl text-2xl transition-transform duration-200 ease-out",
+              locked
+                ? "bg-muted text-muted-foreground"
+                : "text-primary-foreground group-hover:scale-110 group-hover:-rotate-3",
+            )}
+            style={locked ? undefined : { backgroundImage: gradient ?? "var(--gradient-brand)" }}
+            aria-hidden
+          >
+            {locked ? (
+              <Lock className="size-5" />
+            ) : (
+              <span
+                className="inline-block animate-float group-hover:animate-wiggle"
+                style={{ animationDelay: `${(index ?? 0) * 120}ms` }}
+              >
+                {character}
+              </span>
+            )}
+          </div>
+          {/* Sparkles: pop on hover for a bit of life. */}
+          {!locked && (
+            <>
+              <span
+                className="pointer-events-none absolute -right-1 -top-1 text-sm opacity-0 group-hover:animate-sparkle"
+                aria-hidden
+              >
+                ✨
+              </span>
+              <span
+                className="pointer-events-none absolute -left-1 top-2 text-xs opacity-0 group-hover:animate-sparkle [animation-delay:120ms]"
+                aria-hidden
+              >
+                ✨
+              </span>
+            </>
+          )}
+          {/* Completed: a little celebration on arrival. */}
+          {status === "completed" && (
+            <span
+              className="pointer-events-none absolute -right-1.5 -top-1.5 text-base animate-pop"
+              aria-hidden
+            >
+              🎉
+            </span>
+          )}
         </div>
-        {meta.badge}
+        {highlightNext && status === "available" ? (
+          <Badge variant="accent" className="animate-pop">
+            ✦ Start here
+          </Badge>
+        ) : (
+          meta.badge
+        )}
       </div>
 
       <div className="flex-1 space-y-1">

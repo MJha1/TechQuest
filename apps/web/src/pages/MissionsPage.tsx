@@ -4,6 +4,7 @@ import { useChildContext } from "@/context/ChildContext";
 import { childNav } from "@/lib/nav";
 import { listChildMissions } from "@/lib/api";
 import { useCachedResource } from "@/lib/useCachedResource";
+import { missionTheme } from "@/lib/missionTheme";
 import { track } from "@/lib/analytics";
 import { AppShell } from "@/components/layout/AppShell";
 import { MissionCard, type MissionCardStatus } from "@/components/MissionCard";
@@ -35,6 +36,16 @@ export default function MissionsPage() {
   const error = res.error;
   const load = res.reload;
 
+  // The one mission to guide the child toward: the one in progress, else the
+  // first not-yet-completed one. Gets the "Start here" highlight. -1 = none.
+  const nextIndex = missions
+    ? (() => {
+        const inProgress = missions.findIndex((m) => statusOf(m) === "in_progress");
+        if (inProgress !== -1) return inProgress;
+        return missions.findIndex((m) => statusOf(m) === "available");
+      })()
+    : -1;
+
   return (
     <AppShell
       experience="child"
@@ -53,28 +64,48 @@ export default function MissionsPage() {
           <ErrorState title={CHILD_ERROR.title} description={CHILD_ERROR.description} onRetry={load} />
         )}
         {missions && (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {missions.map((m, i) => {
-              const status = statusOf(m);
-              const progress =
-                m.totalSteps > 0 ? Math.round((m.completedSteps / m.totalSteps) * 100) : 0;
-              return (
-                <MissionCard
-                  key={m.mission.id}
-                  index={i}
-                  title={m.mission.title}
-                  concept={m.mission.concept}
-                  status={status}
-                  progress={progress}
-                  estimatedMinutes={m.mission.estimatedMinutes}
-                  onAction={() => {
-                    track("mission_viewed", { missionSlug: m.mission.slug });
-                    navigate(`/missions/${m.mission.id}`);
-                  }}
-                />
-              );
-            })}
-          </div>
+          <>
+            <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+              <p className="text-base font-medium">
+                Pick a mission and let&apos;s explore AI together! 🚀
+              </p>
+              {(() => {
+                const completed = missions.filter((m) => statusOf(m) === "completed").length;
+                return (
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-secondary px-3 py-1 text-sm font-medium text-secondary-foreground">
+                    ⭐ {completed} of {missions.length} complete
+                  </span>
+                );
+              })()}
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {missions.map((m, i) => {
+                const status = statusOf(m);
+                const progress =
+                  m.totalSteps > 0 ? Math.round((m.completedSteps / m.totalSteps) * 100) : 0;
+                const theme = missionTheme(m.mission.slug);
+                return (
+                  <MissionCard
+                    key={m.mission.id}
+                    index={i}
+                    title={m.mission.title}
+                    concept={m.mission.concept}
+                    status={status}
+                    progress={progress}
+                    estimatedMinutes={m.mission.estimatedMinutes}
+                    emoji={theme.emoji}
+                    gradient={theme.gradient}
+                    isNext={i === nextIndex}
+                    onAction={() => {
+                      track("mission_viewed", { missionSlug: m.mission.slug });
+                      navigate(`/missions/${m.mission.id}`);
+                    }}
+                  />
+                );
+              })}
+            </div>
+          </>
         )}
       </div>
     </AppShell>

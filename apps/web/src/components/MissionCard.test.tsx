@@ -33,4 +33,14 @@ describe("MissionCard", () => {
     expect(screen.getByText(/completed/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /review/i })).toBeInTheDocument();
   });
+
+  it("shows a 'Start here' hint on the recommended next mission", () => {
+    render(<MissionCard title="Begin" status="available" isNext />);
+    expect(screen.getByText(/start here/i)).toBeInTheDocument();
+  });
+
+  it("renders the mission's character emoji", () => {
+    render(<MissionCard title="Brains" status="available" emoji="🧠" />);
+    expect(screen.getByText("🧠")).toBeInTheDocument();
+  });
 });
