@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { DoorOpen } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 /**
@@ -18,7 +18,7 @@ export function ExitToParentButton() {
       aria-label="Exit to parent area"
       className="text-muted-foreground hover:text-foreground"
     >
-      <DoorOpen className="size-4" aria-hidden />
+      <ShieldCheck className="size-4" aria-hidden />
       <span className="hidden sm:inline">Exit to parent</span>
     </Button>
   );

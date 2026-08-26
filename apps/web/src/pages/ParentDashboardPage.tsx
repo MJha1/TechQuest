@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { UserPlus, Play, Users, Lightbulb, MessageCircleQuestion, Clock, GraduationCap, ArrowLeft } from "lucide-react";
+import { UserPlus, Play, Users, Lightbulb, MessageCircleQuestion, Clock, GraduationCap } from "lucide-react";
 import type { ParentChildDashboard, ParentDashboard } from "@techquest/shared";
 import { useChildContext } from "@/context/ChildContext";
 import { parentNav } from "@/lib/nav";
@@ -217,7 +217,10 @@ export default function ParentDashboardPage() {
           <div className="flex items-center gap-2">
             {activeChild && (
               <Button variant="outline" size="sm" onClick={() => navigate("/child")}>
-                <ArrowLeft className="size-4" /> Back to {activeChild.nickname}
+                <span className="text-base leading-none" aria-hidden>
+                  {activeChild.avatar ?? "🚀"}
+                </span>
+                Back to {activeChild.nickname}
               </Button>
             )}
             <Button asChild size="sm">
