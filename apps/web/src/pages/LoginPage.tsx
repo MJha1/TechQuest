@@ -29,17 +29,23 @@ export default function LoginPage() {
     }
 
     setSubmitting(true);
-    const { error: authError } = await signIn.email({
-      email: parsed.data.email,
-      password: parsed.data.password,
-    });
-    setSubmitting(false);
-
-    if (authError) {
-      setError(authError.message ?? "Invalid email or password");
-      return;
+    try {
+      const { error: authError } = await signIn.email({
+        email: parsed.data.email,
+        password: parsed.data.password,
+      });
+      if (authError) {
+        setError(authError.message ?? "Invalid email or password");
+        return;
+      }
+      navigate("/parent");
+    } catch {
+      // Network/transient failure (e.g. during a deploy): surface it instead of
+      // leaving the button silently stuck.
+      setError("We couldn't reach the server. Please check your connection and try again.");
+    } finally {
+      setSubmitting(false);
     }
-    navigate("/parent");
   }
 
   return (

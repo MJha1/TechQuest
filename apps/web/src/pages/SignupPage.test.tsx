@@ -76,4 +76,16 @@ describe("SignupPage", () => {
     expect(await screen.findByText(/already exists/i)).toBeInTheDocument();
     expect(navigateMock).not.toHaveBeenCalled();
   });
+
+  it("recovers from a network failure instead of silently hanging", async () => {
+    signUpEmail.mockRejectedValue(new Error("Failed to fetch"));
+    renderPage();
+
+    fillForm("parent@example.com", "supersecret");
+    fireEvent.click(screen.getByRole("button", { name: /continue/i }));
+
+    expect(await screen.findByRole("alert")).toBeInTheDocument();
+    expect(navigateMock).not.toHaveBeenCalled();
+    await waitFor(() => expect(screen.getByRole("button", { name: /continue/i })).not.toBeDisabled());
+  });
 });

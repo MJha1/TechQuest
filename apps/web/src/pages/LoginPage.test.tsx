@@ -76,4 +76,19 @@ describe("LoginPage", () => {
     expect(await screen.findByText(/invalid email or password/i)).toBeInTheDocument();
     expect(navigateMock).not.toHaveBeenCalled();
   });
+
+  it("recovers from a network failure instead of silently hanging", async () => {
+    // Better Auth throws (rather than returning {error}) on network/transient
+    // failures — e.g. during a deploy. The form must surface it, not get stuck.
+    signInEmail.mockRejectedValue(new Error("Failed to fetch"));
+    renderPage();
+
+    fillForm("parent@example.com", "supersecret");
+    fireEvent.click(screen.getByRole("button", { name: /log in/i }));
+
+    expect(await screen.findByRole("alert")).toBeInTheDocument();
+    expect(navigateMock).not.toHaveBeenCalled();
+    // Button is usable again (not stuck on "Logging in…").
+    await waitFor(() => expect(screen.getByRole("button", { name: /log in/i })).not.toBeDisabled());
+  });
 });

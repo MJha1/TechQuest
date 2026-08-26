@@ -35,20 +35,26 @@ export default function SignupPage() {
     // Derive a display name from the email local-part so we don't collect a
     // separate real name.
     const name = parsed.data.email.split("@")[0] || "Parent";
-    const { data, error: authError } = await signUp.email({
-      email: parsed.data.email,
-      password: parsed.data.password,
-      name,
-    });
-    setSubmitting(false);
-
-    if (authError) {
-      setError(authError.message ?? "Could not create your account");
-      return;
+    try {
+      const { data, error: authError } = await signUp.email({
+        email: parsed.data.email,
+        password: parsed.data.password,
+        name,
+      });
+      if (authError) {
+        setError(authError.message ?? "Could not create your account");
+        return;
+      }
+      // Pseudonymous account id only — never the email.
+      track("signup_completed", { userRef: data?.user?.id ?? "unknown" });
+      navigate("/create-child");
+    } catch {
+      // Network/transient failure (e.g. during a deploy): surface it instead of
+      // leaving the button silently stuck.
+      setError("We couldn't reach the server. Please check your connection and try again.");
+    } finally {
+      setSubmitting(false);
     }
-    // Pseudonymous account id only — never the email.
-    track("signup_completed", { userRef: data?.user?.id ?? "unknown" });
-    navigate("/create-child");
   }
 
   return (
