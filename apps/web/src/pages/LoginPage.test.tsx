@@ -77,6 +77,24 @@ describe("LoginPage", () => {
     expect(navigateMock).not.toHaveBeenCalled();
   });
 
+  it("submits browser-autofilled values that never fired React onChange", async () => {
+    signInEmail.mockResolvedValue({ data: { user: {} }, error: null });
+    renderPage();
+
+    // Simulate Chrome/password-manager autofill: the DOM value is set without
+    // dispatching the events React listens to, so controlled state stays empty.
+    (screen.getByLabelText(/email/i) as HTMLInputElement).value = "auto@example.com";
+    (screen.getByLabelText(/password/i) as HTMLInputElement).value = "autofilled-secret";
+    fireEvent.click(screen.getByRole("button", { name: /log in/i }));
+
+    await waitFor(() =>
+      expect(signInEmail).toHaveBeenCalledWith(
+        expect.objectContaining({ email: "auto@example.com", password: "autofilled-secret" }),
+      ),
+    );
+    await waitFor(() => expect(navigateMock).toHaveBeenCalledWith("/parent"));
+  });
+
   it("recovers from a network failure instead of silently hanging", async () => {
     // Better Auth throws (rather than returning {error}) on network/transient
     // failures — e.g. during a deploy. The form must surface it, not get stuck.

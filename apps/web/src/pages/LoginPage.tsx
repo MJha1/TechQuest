@@ -13,15 +13,20 @@ import { OnboardingLayout } from "@/components/onboarding/OnboardingLayout";
  */
 export default function LoginPage() {
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
-  async function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
 
+    // Read straight from the form's DOM (not React state) so values filled by
+    // the browser / a password manager are captured even when the autofill
+    // doesn't fire React's onChange — otherwise the first submit sees empty
+    // fields and silently does nothing.
+    const fd = new FormData(e.currentTarget);
+    const email = String(fd.get("email") ?? "").trim();
+    const password = String(fd.get("password") ?? "");
     const parsed = ParentCredentialsSchema.safeParse({ email, password });
     if (!parsed.success) {
       setError(parsed.error.issues[0]?.message ?? "Please check your details");
@@ -59,10 +64,9 @@ export default function LoginPage() {
           <label htmlFor="email" className="text-sm font-medium">Email</label>
           <input
             id="email"
+            name="email"
             type="email"
             autoComplete="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
             className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm outline-none transition-colors focus:border-ring focus:ring-2 focus:ring-ring/30"
           />
         </div>
@@ -71,10 +75,9 @@ export default function LoginPage() {
           <label htmlFor="password" className="text-sm font-medium">Password</label>
           <input
             id="password"
+            name="password"
             type="password"
             autoComplete="current-password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
             className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm outline-none transition-colors focus:border-ring focus:ring-2 focus:ring-ring/30"
           />
         </div>
