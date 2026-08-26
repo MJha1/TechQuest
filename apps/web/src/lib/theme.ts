@@ -1,6 +1,8 @@
 export type Theme = "light" | "dark";
 
-const STORAGE_KEY = "techquest.theme";
+// v2: bumped to reset older saved preferences so the dark-first default takes
+// effect for existing sessions. Viewers can still toggle to light afterward.
+const STORAGE_KEY = "techquest.theme.v2";
 
 /** The persisted choice, or null if the viewer hasn't picked one. */
 export function getStoredTheme(): Theme | null {

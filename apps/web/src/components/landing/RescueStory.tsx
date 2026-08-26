@@ -32,11 +32,20 @@ export function RescueStory({
             <span className="absolute -bottom-2 left-1/2 size-3 -translate-x-1/2 rounded-full bg-muted" aria-hidden />
             <span className="absolute -bottom-4 left-[45%] size-1.5 rounded-full bg-muted" aria-hidden />
           </div>
-          <img
-            src={worriedParent}
-            alt="A parent"
-            className="mx-auto mt-6 size-28 rounded-full object-cover shadow-md ring-4 ring-background"
-          />
+          <div className="relative mx-auto mt-6 w-28">
+            <img
+              src={worriedParent}
+              alt="A worried parent"
+              className="size-28 rounded-full object-cover shadow-md ring-4 ring-background"
+            />
+            {/* Worry cue over the photo. */}
+            <span
+              className="absolute -bottom-1 -right-1 flex size-9 items-center justify-center rounded-full bg-background text-xl shadow ring-1 ring-border"
+              aria-hidden
+            >
+              😟
+            </span>
+          </div>
           <p className="mt-3 text-sm text-muted-foreground">Every parent, right about now.</p>
         </div>
       </div>
