@@ -6,8 +6,10 @@ import { useChildContext } from "@/context/ChildContext";
 import { childNav } from "@/lib/nav";
 import { listChildBadges, listChildMissions } from "@/lib/api";
 import { useCachedResource } from "@/lib/useCachedResource";
+import { missionTheme } from "@/lib/missionTheme";
 import { track } from "@/lib/analytics";
 import { AppShell } from "@/components/layout/AppShell";
+import { MissionCharacter } from "@/components/MissionCharacter";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -97,11 +99,12 @@ export default function ChildHomePage() {
             </p>
           ) : (
             <ul className="flex flex-wrap gap-2">
-              {earnedBadges.map((b) => (
+              {earnedBadges.map((b, i) => (
                 <li
                   key={b.badge.slug}
                   title={b.badge.description}
-                  className="flex items-center gap-1.5 rounded-full bg-secondary px-3 py-1 text-sm font-medium text-secondary-foreground"
+                  className="flex animate-pop items-center gap-1.5 rounded-full bg-secondary px-3 py-1 text-sm font-medium text-secondary-foreground"
+                  style={{ animationDelay: `${i * 90}ms` }}
                 >
                   <span aria-hidden>{b.badge.icon ?? "🏅"}</span>
                   {b.badge.name}
@@ -152,14 +155,23 @@ export default function ChildHomePage() {
         {!error && missions !== null && (
           <>
             {/* Today's Mission — the hero + primary CTA. */}
-            <Card>
+            <Card className="animate-rise-in">
               <CardHeader>
                 <p className="text-xs font-semibold uppercase tracking-wide text-primary">
                   Today's Mission
                 </p>
-                <CardTitle className="text-2xl" style={{ fontFamily: "var(--font-display)" }}>
-                  {todays ? todays.mission.title : "You've finished every mission!"}
-                </CardTitle>
+                <div className="flex items-center gap-4">
+                  {todays && (
+                    <MissionCharacter
+                      emoji={missionTheme(todays.mission.slug).emoji}
+                      gradient={missionTheme(todays.mission.slug).gradient}
+                      size="lg"
+                    />
+                  )}
+                  <CardTitle className="text-2xl" style={{ fontFamily: "var(--font-display)" }}>
+                    {todays ? todays.mission.title : "You've finished every mission! 🎉"}
+                  </CardTitle>
+                </div>
               </CardHeader>
               <CardContent className="space-y-4">
                 {todays ? (
@@ -192,7 +204,7 @@ export default function ChildHomePage() {
             </Card>
 
             {/* Progress across all missions. */}
-            <Card>
+            <Card className="animate-rise-in" style={{ animationDelay: "80ms" }}>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-base">
                   <Sparkles className="size-4 text-primary" /> Progress
@@ -211,12 +223,19 @@ export default function ChildHomePage() {
 
             {/* Recommended next mission. */}
             {recommended && (
-              <Card>
+              <Card className="animate-rise-in" style={{ animationDelay: "160ms" }}>
                 <CardHeader>
                   <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                     Recommended next
                   </p>
-                  <CardTitle className="text-lg">{recommended.mission.title}</CardTitle>
+                  <div className="flex items-center gap-3">
+                    <MissionCharacter
+                      emoji={missionTheme(recommended.mission.slug).emoji}
+                      gradient={missionTheme(recommended.mission.slug).gradient}
+                      delayIndex={1}
+                    />
+                    <CardTitle className="text-lg">{recommended.mission.title}</CardTitle>
+                  </div>
                 </CardHeader>
                 <CardContent className="flex flex-wrap items-center justify-between gap-3">
                   <p className="text-sm text-muted-foreground">
