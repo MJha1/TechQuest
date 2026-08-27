@@ -10,7 +10,7 @@ import worriedParent from "@/assets/worried-parent.png";
 /**
  * A little "to the rescue" story for the landing page: a worried parent
  * wondering how their child will ever learn AI, and TechQuest arriving to help.
- * Purely illustrative (emoji + the inline SVG mascot — no photos), and warmly
+ * The worry is a full scene image; the rescue is the inline SVG mascot. Warmly
  * personalized with the signed-in parent's first name when we have it.
  */
 export function RescueStory({
@@ -22,32 +22,15 @@ export function RescueStory({
 }) {
   return (
     <div className="grid items-center gap-6 lg:grid-cols-[1fr_auto_1fr]">
-      {/* The worry */}
-      <div className="rounded-2xl border border-border bg-card p-6 text-center shadow-sm">
-        <div className="relative mx-auto max-w-xs">
-          {/* Thought bubble */}
-          <div className="relative mx-auto rounded-2xl bg-muted px-5 py-4 text-base font-semibold">
-            “How will my child <span className="text-primary">ever</span> learn AI?”
-            {/* Bubble tail */}
-            <span className="absolute -bottom-2 left-1/2 size-3 -translate-x-1/2 rounded-full bg-muted" aria-hidden />
-            <span className="absolute -bottom-4 left-[45%] size-1.5 rounded-full bg-muted" aria-hidden />
-          </div>
-          <div className="relative mx-auto mt-6 w-28">
-            <img
-              src={worriedParent}
-              alt="A worried parent"
-              className="size-28 rounded-full object-cover shadow-md ring-4 ring-background"
-            />
-            {/* Worry cue over the photo. */}
-            <span
-              className="absolute -bottom-1 -right-1 flex size-9 items-center justify-center rounded-full bg-background text-xl shadow ring-1 ring-border"
-              aria-hidden
-            >
-              😟
-            </span>
-          </div>
-          <p className="mt-3 text-sm text-muted-foreground">Every parent, right about now.</p>
-        </div>
+      {/* The worry — a full scene: the questions and the "how will my child
+          learn it?" note are baked into the image, so no extra thought bubble. */}
+      <div className="rounded-2xl border border-border bg-card p-4 text-center shadow-sm">
+        <img
+          src={worriedParent}
+          alt="A parent at a laptop, worried about how their child will learn AI while the child uses a tablet nearby."
+          className="mx-auto w-full rounded-xl shadow-md"
+        />
+        <p className="mt-3 text-sm text-muted-foreground">Every parent, right about now.</p>
       </div>
 
       {/* Connector: → on desktop, ↓ on mobile */}

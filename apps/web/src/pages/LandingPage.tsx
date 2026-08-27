@@ -6,8 +6,9 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { track } from "@/lib/analytics";
 import { cn } from "@/lib/utils";
-import { RobotMascot, EmojiTile } from "@/components/landing/illustrations";
+import { EmojiTile } from "@/components/landing/illustrations";
 import { TryMission } from "@/components/landing/TryMission";
+import heroFamily from "@/assets/hero-family.png";
 import { RescueStory } from "@/components/landing/RescueStory";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useSession } from "@/lib/auth-client";
@@ -179,12 +180,13 @@ export default function LandingPage() {
           </p>
         </div>
 
-        {/* Mascot with floating emoji */}
-        <div className="relative mx-auto w-full max-w-sm">
-          <RobotMascot className="w-full" />
-          <span className="absolute left-2 top-6 animate-float text-3xl" style={{ animationDelay: "0.3s" }} aria-hidden>🚀</span>
-          <span className="absolute right-3 top-16 animate-float text-3xl" style={{ animationDelay: "1s" }} aria-hidden>🧩</span>
-          <span className="absolute bottom-6 left-6 animate-float text-3xl" style={{ animationDelay: "1.6s" }} aria-hidden>💡</span>
+        {/* Hero scene: a parent and child exploring AI learning together. */}
+        <div className="relative mx-auto w-full">
+          <img
+            src={heroFamily}
+            alt="A parent and child smiling at a laptop showing a colorful, kid-friendly AI learning app, with a friendly robot mascot alongside."
+            className="w-full rounded-2xl shadow-xl ring-1 ring-border"
+          />
         </div>
       </section>
 
