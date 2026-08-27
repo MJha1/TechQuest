@@ -38,99 +38,100 @@ export const missions: SeedMission[] = [
     order: 1,
     estimatedMinutes: 9,
     steps: [
-      // 1. Introduction — set up the big idea (AI is not a human brain).
+      // 1. Introduction — meet Byte, and set up the Examples → Pattern →
+      //    Prediction spine with a concrete story instead of a definition.
       {
         type: "INTRO",
-        title: "Meet a learning machine",
+        title: "Meet Byte, a learning robot",
         content: {
           emoji: "🤖",
           heading: "How does AI learn?",
-          body: "AI is a clever computer helper. It does not think the way you do. Instead, it learns by looking at LOTS of examples until it notices a pattern. Ready to see how? Let's go!",
+          body: "Meet Byte! 🤖 Byte is a robot who really wants to tell cats from dogs 🐱🐶 — but Byte was NOT born knowing how. AI learns the way you learned your letters: by looking at lots of EXAMPLES until it spots a PATTERN. Today YOU get to train Byte. Ready? Let's go!",
         },
       },
-      // 2. What does AI do?
+      // 2. What does AI do? — name the big idea.
       {
         type: "CHOICE",
-        title: "What does AI do?",
+        title: "How does AI learn?",
         content: {
-          prompt: "Which sentence describes AI the best?",
+          prompt: "You're about to train Byte. Which sentence tells the truth about how AI learns?",
           options: [
             { id: "a", emoji: "🎓", label: "It is born already knowing everything.", correct: false },
-            { id: "b", emoji: "🔍", label: "It learns from examples and spots patterns.", correct: true },
+            { id: "b", emoji: "🔍", label: "It learns from lots of examples and finds a pattern.", correct: true },
             { id: "c", emoji: "🎲", label: "It just guesses, with no help at all.", correct: false },
           ],
-          explanation: "Nice! AI learns from examples and looks for patterns. Then it uses them to help.",
+          explanation: "Yes! AI learns from EXAMPLES and finds a PATTERN — then it uses that pattern to help. That's the big AI secret.",
         },
       },
-      // 3. Pattern example — Examples → Patterns.
+      // 3. Examples → Pattern. Training Byte by sorting examples.
       {
         type: "DRAG_DROP",
-        title: "Find the pattern",
+        title: "Train Byte: find the pattern",
         content: {
-          prompt: "Show the AI some examples. Put each photo in the right group so it can learn the pattern.",
+          prompt: "Time to train Byte! Sort each example into the right group. The more you sort, the clearer the PATTERN becomes.",
           items: [
-            { id: "1", label: "🐱 pointy ears, whiskers" },
-            { id: "2", label: "🐶 floppy ears, waggy tail" },
-            { id: "3", label: "🐱 stripey fur, likes to pounce" },
-            { id: "4", label: "🐶 wet nose, loves to fetch" },
+            { id: "1", label: "🐱 pointy ears + whiskers" },
+            { id: "2", label: "🐶 floppy ears + waggy tail" },
+            { id: "3", label: "🐱 purrs and loves to pounce" },
+            { id: "4", label: "🐶 barks and loves to fetch" },
           ],
           targets: [
             { id: "cats", label: "Cats" },
             { id: "dogs", label: "Dogs" },
           ],
           solution: { "1": "cats", "2": "dogs", "3": "cats", "4": "dogs" },
-          explanation: "Great sorting! The AI can now see the pattern: pointy ears and whiskers means cat.",
+          explanation: "Awesome training! Byte can now see the PATTERN: pointy ears + whiskers → cat. That's how AI turns examples into a pattern.",
         },
       },
-      // 4. Prediction activity — Patterns → Prediction.
+      // 4. Pattern → Prediction. Byte guesses on something brand new.
       {
         type: "PREDICTION",
-        title: "Make a prediction",
+        title: "Byte makes a prediction",
         content: {
-          prompt: "The AI learned the cat pattern. Now it sees a BRAND NEW photo with pointy ears and whiskers. What will it predict?",
+          prompt: "Byte learned the cat pattern from YOUR examples. Now it sees a brand-new photo it has never seen before — pointy ears and whiskers. What will Byte predict?",
           options: [
             { id: "a", emoji: "🐱", label: "Cat", correct: true },
             { id: "b", emoji: "🚗", label: "Car", correct: false },
           ],
-          reveal: "It predicts 'cat' — because the new photo matches the pattern it learned. That is a prediction!",
+          reveal: "Byte predicts 'Cat!' 🎉 It matched the new photo to the PATTERN it learned. Using a pattern to guess something new is called a PREDICTION.",
         },
       },
-      // 5. More examples — why more data helps.
+      // 5. More data → better learning.
       {
         type: "CHOICE",
         title: "More examples, please!",
         content: {
-          prompt: "You want the AI to get REALLY good at spotting cats. What helps it most?",
+          prompt: "You want Byte to become a super cat-spotter. What will help it learn the pattern best?",
           options: [
-            { id: "a", emoji: "🖼️", label: "Just one photo", correct: false },
-            { id: "b", emoji: "🐱", label: "Lots and lots of cat photos", correct: true },
+            { id: "a", emoji: "🖼️", label: "Just one cat photo", correct: false },
+            { id: "b", emoji: "🐱", label: "Lots and lots of different cat photos", correct: true },
             { id: "c", emoji: "🥪", label: "A photo of a sandwich", correct: false },
           ],
-          explanation: "Exactly! More good examples give the AI more chances to learn the pattern well.",
+          explanation: "Exactly! More good examples — we call this DATA — give Byte more chances to learn the pattern really well.",
         },
       },
-      // 6. AI can make mistakes — and how to respond.
+      // 6. AI can be wrong — and what to do about it.
       {
         type: "CHOICE",
-        title: "Can AI be wrong?",
+        title: "Can Byte be wrong?",
         content: {
-          prompt: "AI is helpful, but it is not perfect and it can make mistakes. What is the smart thing to do if its answer seems wrong?",
+          prompt: "Byte is clever, but it is NOT perfect — sometimes it makes mistakes. If Byte gives an answer that seems wrong, what's the smart move?",
           options: [
             { id: "a", emoji: "🙈", label: "Believe it no matter what", correct: false },
             { id: "b", emoji: "📚", label: "Check with a grown-up or a book you trust", correct: true },
             { id: "c", emoji: "🚫", label: "Never use a computer again", correct: false },
           ],
-          explanation: "Smart thinkers double-check! AI can make mistakes, so it is good to check tricky answers.",
+          explanation: "Smart thinkers double-check! If Byte's examples missed something, it can guess wrong — so checking tricky answers keeps YOU in charge.",
         },
       },
-      // 7. Mini challenge — apply Examples yourself.
+      // 7. Mini challenge — the child supplies training examples.
       {
         type: "CHALLENGE",
-        title: "Teach it yourself",
+        title: "Your turn to teach Byte",
         content: {
-          task: "Imagine you are teaching an AI what a DOG looks like. Type three examples you would show it.",
-          placeholder: "For example: a puppy, a big fluffy dog, a dog running in the park",
-          successCriteria: "Any three dog-like examples are perfect — great teaching!",
+          task: "Now YOU are the teacher! Byte wants to learn what a DOG looks like. Type three example clues you would show it.",
+          placeholder: "Like: floppy ears, a waggy tail, loves to fetch",
+          successCriteria: "Any three dog-like examples are perfect — you just gave Byte its training data!",
         },
         xpReward: 20,
       },
@@ -139,22 +140,22 @@ export const missions: SeedMission[] = [
         type: "REFLECTION",
         title: "Think about it",
         content: {
-          prompt: "What is one thing YOU would teach an AI using examples?",
-          placeholder: "I would teach an AI to...",
+          prompt: "If you could train an AI to recognize ANYTHING using examples, what would you teach it?",
+          placeholder: "I would teach an AI to spot...",
         },
       },
-      // 9. Completion — recap Examples → Patterns → Prediction.
+      // 9. Completion — recap Examples → Pattern → Prediction.
       // `parentSummary` / `homePrompt` power the parent dashboard's
       // "What your child learned" and "Try this at home" sections.
       {
         type: "COMPLETION",
-        title: "Mission complete!",
+        title: "You trained an AI!",
         content: {
           emoji: "🏆",
           heading: "You did it! 🎉",
-          body: "You cracked the secret: AI looks at EXAMPLES, finds a PATTERN, and makes a PREDICTION. And remember — AI can make mistakes, so it is smart to check. You are an AI explorer now!",
-          parentSummary: "AI can find patterns in examples and use those patterns to make predictions.",
-          homePrompt: "Can AI make mistakes? Why?",
+          body: "You cracked the AI secret: show it EXAMPLES → it finds a PATTERN → it makes a PREDICTION. More examples make it smarter, and it can still be wrong — so smart thinkers check. You trained Byte AND became an AI explorer!",
+          parentSummary: "AI learns from examples, finds a pattern, and uses it to make predictions — and more examples make it more accurate.",
+          homePrompt: "Can you teach me the AI secret — examples, pattern, prediction?",
         },
         xpReward: 30,
       },
