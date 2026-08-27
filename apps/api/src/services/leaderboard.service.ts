@@ -63,15 +63,15 @@ export async function getFamilyLeaderboard(
 
   const entries: LeaderboardEntry[] = [];
   rows.forEach((r, i) => {
-    let rank = i + 1;
-    if (i > 0) {
-      const prev = rows[i - 1];
-      const tie =
-        prev.xp === r.xp &&
-        prev.missionsCompleted === r.missionsCompleted &&
-        prev.level === r.level;
-      if (tie) rank = entries[i - 1].rank; // standard competition ranking
-    }
+    const prev = i > 0 ? rows[i - 1] : undefined;
+    const prevEntry = i > 0 ? entries[i - 1] : undefined;
+    const tie =
+      prev !== undefined &&
+      prev.xp === r.xp &&
+      prev.missionsCompleted === r.missionsCompleted &&
+      prev.level === r.level;
+    // Standard competition ranking: a tie inherits the previous rank.
+    const rank = tie && prevEntry ? prevEntry.rank : i + 1;
     entries.push({ ...r, rank });
   });
 
