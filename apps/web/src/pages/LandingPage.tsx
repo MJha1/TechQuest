@@ -19,12 +19,14 @@ const onCta = (cta: string) => () => track("cta_clicked", { cta });
 
 /**
  * Friendly first name from the account's display name. Signup derives that name
- * from the email local-part (no real name is collected), so we take the first
- * segment and capitalize it — a warm, non-identifying greeting for the parent's
- * own device.
+ * from the email local-part (no real name is collected), which in practice is
+ * often lastname.firstname (e.g. "jha.minu") — so we take the LAST segment as
+ * the first name and capitalize it. Heuristic: this is wrong for firstname.
+ * lastname emails, an accepted tradeoff for a warmer, non-identifying greeting.
  */
 function firstNameFrom(name: string): string {
-  const seg = name.trim().split(/[.\-_+\s]/)[0] || name.trim();
+  const segs = name.trim().split(/[.\-_+\s]/).filter(Boolean);
+  const seg = segs[segs.length - 1] || name.trim();
   return seg.charAt(0).toUpperCase() + seg.slice(1);
 }
 
@@ -176,9 +178,11 @@ export default function LandingPage() {
               See how it works
             </Button>
           </div>
-          <p className="mt-4 text-sm text-muted-foreground">
-            {signedIn ? `Signed in as ${firstName}` : "Free to start · No child logins"}
-          </p>
+          {/* Anonymous visitors get the value prop; signed-in parents already
+              see "Welcome back" + "Continue as …", so no redundant status line. */}
+          {!signedIn && (
+            <p className="mt-4 text-sm text-muted-foreground">Free to start · No child logins</p>
+          )}
         </div>
 
         {/* Hero scene: a parent and child exploring AI learning together. A

@@ -57,7 +57,9 @@ describe("LandingPage", () => {
   });
 
   it("personalizes the page and login button for a signed-in parent", () => {
-    sessionState.current = { data: { user: { id: "p1", name: "nova.parent" } }, isPending: false };
+    // Name derived from the email local-part, often lastname.firstname → the
+    // first name is the LAST segment ("parent.nova" → "Nova").
+    sessionState.current = { data: { user: { id: "p1", name: "parent.nova" } }, isPending: false };
     renderPage();
     // Greets by first name (derived from the account's display name).
     expect(screen.getByText(/welcome back, nova/i)).toBeInTheDocument();
