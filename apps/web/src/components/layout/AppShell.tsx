@@ -20,6 +20,7 @@ export function AppShell({
   title,
   topBarRight,
   sidebarFooter,
+  sidebarExtra,
   rightPanel,
   experience = "child",
   children,
@@ -28,6 +29,8 @@ export function AppShell({
   title?: ReactNode;
   topBarRight?: ReactNode;
   sidebarFooter?: ReactNode;
+  /** Optional widget rendered in the sidebar between the nav and the footer. */
+  sidebarExtra?: ReactNode;
   rightPanel?: ReactNode;
   experience?: "child" | "parent";
   children: ReactNode;
@@ -50,7 +53,7 @@ export function AppShell({
     <div data-experience={experience} className="min-h-screen bg-background text-foreground">
       {/* Desktop sidebar (fixed column) */}
       <aside className="hidden lg:fixed lg:inset-y-0 lg:left-0 lg:z-40 lg:block lg:w-64">
-        <Sidebar items={items} footer={sidebarFooter} />
+        <Sidebar items={items} footer={sidebarFooter} aside={sidebarExtra} />
       </aside>
 
       {/* Mobile sidebar (slide-over drawer, focus-trapped) */}
@@ -65,6 +68,7 @@ export function AppShell({
             <Sidebar
               items={items}
               footer={sidebarFooter}
+              aside={sidebarExtra}
               onNavigate={() => setDrawerOpen(false)}
               className="h-full"
             />

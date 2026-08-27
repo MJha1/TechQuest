@@ -14,11 +14,16 @@ import { Navigation, type NavItem } from "./Navigation";
 export function Sidebar({
   items,
   footer,
+  aside,
   onNavigate,
   className,
 }: {
   items: NavItem[];
   footer?: ReactNode;
+  /** Optional widget shown in the space between the nav and the footer (e.g. the
+   *  child "buddy" panel). When present it fills that space instead of leaving a
+   *  bare gap; when absent a flexible spacer keeps the footer pinned to the bottom. */
+  aside?: ReactNode;
   onNavigate?: () => void;
   className?: string;
 }) {
@@ -37,7 +42,13 @@ export function Sidebar({
         </span>
       </Link>
 
-      <Navigation items={items} onNavigate={onNavigate} className="flex-1" />
+      <Navigation items={items} onNavigate={onNavigate} className="flex-none" />
+
+      {aside ? (
+        <div className="flex flex-1 flex-col justify-center">{aside}</div>
+      ) : (
+        <div className="flex-1" aria-hidden />
+      )}
 
       {footer && <div className="border-t border-border pt-4">{footer}</div>}
     </div>

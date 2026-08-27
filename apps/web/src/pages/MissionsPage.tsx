@@ -9,6 +9,7 @@ import { missionTheme } from "@/lib/missionTheme";
 import { track } from "@/lib/analytics";
 import { AppShell } from "@/components/layout/AppShell";
 import { MissionCard, type MissionCardStatus } from "@/components/MissionCard";
+import { SidebarBuddy } from "@/components/child/SidebarBuddy";
 import { XPDisplay } from "@/components/XPDisplay";
 import { StreakDisplay } from "@/components/StreakDisplay";
 import { LoadingState } from "@/components/ui/loading-state";
@@ -57,6 +58,9 @@ export default function MissionsPage() {
       experience="child"
       items={childNav}
       title="Missions"
+      sidebarExtra={
+        <SidebarBuddy nickname={child.nickname} level={child.level} xp={child.xp} />
+      }
       topBarRight={
         <>
           <StreakDisplay streak={child.streak} />

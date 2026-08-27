@@ -10,6 +10,8 @@ import { missionTheme } from "@/lib/missionTheme";
 import { track } from "@/lib/analytics";
 import { AppShell } from "@/components/layout/AppShell";
 import { MissionCharacter } from "@/components/MissionCharacter";
+import { TiltCard } from "@/components/motion/TiltCard";
+import { SidebarBuddy } from "@/components/child/SidebarBuddy";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -123,7 +125,17 @@ export default function ChildHomePage() {
     <AppShell
       experience="child"
       items={childNav}
-      title={`Hi, ${child.nickname}! 👋`}
+      title={
+        <>
+          Hi, {child.nickname}!{" "}
+          <span className="inline-block animate-wiggle [transform-origin:70%_80%]" aria-hidden>
+            👋
+          </span>
+        </>
+      }
+      sidebarExtra={
+        <SidebarBuddy nickname={child.nickname} level={child.level} xp={child.xp} />
+      }
       sidebarFooter={
         <div className="flex items-center gap-3">
           <Avatar size="sm">
@@ -157,10 +169,11 @@ export default function ChildHomePage() {
         {!error && missions !== null && (
           <>
             {/* Today's Mission — the hero + primary CTA. */}
-            <Card className="relative overflow-hidden animate-rise-in">
-              {/* Subtle decorative swirl (self-contained, faint). */}
+            <TiltCard className="animate-card-flip-in">
+            <Card className="relative overflow-hidden bg-gradient-to-br from-primary/[0.08] via-transparent to-accent/[0.08]">
+              {/* Decorative swirl (self-contained). */}
               <svg
-                className="pointer-events-none absolute -right-8 -top-8 size-40 text-primary/[0.06]"
+                className="pointer-events-none absolute -right-8 -top-8 size-40 text-primary/[0.12]"
                 viewBox="0 0 200 200"
                 fill="none"
                 aria-hidden
@@ -169,6 +182,10 @@ export default function ChildHomePage() {
                 <path d="M30 150 Q75 85 120 150 T210 145" stroke="currentColor" strokeWidth="9" strokeLinecap="round" />
                 <circle cx="158" cy="45" r="9" fill="currentColor" />
               </svg>
+              {/* Floating ambient shapes — a little life at rest. */}
+              <span className="pointer-events-none absolute right-6 top-6 size-3 rounded-full bg-accent/40 animate-float [animation-delay:0.3s]" aria-hidden />
+              <span className="pointer-events-none absolute right-16 bottom-8 size-2 rounded-full bg-xp/50 animate-float [animation-delay:1s]" aria-hidden />
+              <span className="pointer-events-none absolute right-28 top-10 text-sm opacity-70 animate-float [animation-delay:0.6s]" aria-hidden>✨</span>
               <CardHeader>
                 <p className="text-xs font-semibold uppercase tracking-wide text-primary">
                   Today's Mission
@@ -223,9 +240,11 @@ export default function ChildHomePage() {
                 )}
               </CardContent>
             </Card>
+            </TiltCard>
 
             {/* Progress across all missions. */}
-            <Card className="animate-rise-in" style={{ animationDelay: "80ms" }}>
+            <TiltCard className="animate-card-flip-in [animation-delay:80ms]">
+            <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-base">
                   <Sparkles className="size-4 text-primary" /> Progress
@@ -238,16 +257,21 @@ export default function ChildHomePage() {
                   tone="success"
                   label={`${completedCount} of ${totalMissions} missions complete`}
                   showValue
+                  animateOnMount
                 />
               </CardContent>
             </Card>
+            </TiltCard>
 
             {/* A dose of curiosity — one true tech/AI fact per visit. */}
-            <DidYouKnowCard className="animate-rise-in [animation-delay:240ms]" />
+            <TiltCard className="animate-card-flip-in [animation-delay:240ms]">
+              <DidYouKnowCard />
+            </TiltCard>
 
             {/* Recommended next mission. */}
             {recommended && (
-              <Card className="animate-rise-in" style={{ animationDelay: "160ms" }}>
+              <TiltCard className="animate-card-flip-in [animation-delay:160ms]">
+              <Card>
                 <CardHeader>
                   <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                     Recommended next
@@ -273,6 +297,7 @@ export default function ChildHomePage() {
                   </Button>
                 </CardContent>
               </Card>
+              </TiltCard>
             )}
 
             {/* Rewards inline for narrower screens (right panel is xl-only). */}
