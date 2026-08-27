@@ -193,6 +193,12 @@
   /* Soft accent glow to make the primary kid CTA feel inviting. Under reduced
      motion the pulse stops and it rests as a gentle static glow. */
   --animate-cta-glow: cta-glow 2.8s ease-in-out infinite;
+  /* Missions grid entrance: each card flips up into place on a perspective
+     plane (pair with an inline animation-delay to stagger the grid). The
+     perspective is baked in so it reads as 3D without a perspective ancestor. */
+  --animate-card-flip-in: card-flip-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  /* A slow gold sheen that sweeps across a completed mission's tile. */
+  --animate-tile-shimmer: tile-shimmer 2.6s ease-in-out infinite;
 }
 
 @keyframes fade-in {
@@ -263,6 +269,14 @@
 @keyframes cta-glow {
   0%, 100% { box-shadow: 0 6px 16px -6px color-mix(in srgb, var(--color-accent) 55%, transparent); }
   50% { box-shadow: 0 8px 26px -3px color-mix(in srgb, var(--color-accent) 70%, transparent); }
+}
+@keyframes card-flip-in {
+  0% { opacity: 0; transform: perspective(900px) rotateX(-16deg) translateY(14px); }
+  100% { opacity: 1; transform: perspective(900px) rotateX(0deg) translateY(0); }
+}
+@keyframes tile-shimmer {
+  0% { transform: translateX(-140%) skewX(-12deg); }
+  60%, 100% { transform: translateX(240%) skewX(-12deg); }
 }
 
 /* Pointer-driven 3D tilt (see components/motion/TiltCard.tsx). The rotation and

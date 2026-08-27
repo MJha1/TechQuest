@@ -4,6 +4,7 @@ import { useChildContext } from "@/context/ChildContext";
 import { childNav } from "@/lib/nav";
 import { listChildMissions } from "@/lib/api";
 import { useCachedResource } from "@/lib/useCachedResource";
+import { useCountUp } from "@/lib/useCountUp";
 import { missionTheme } from "@/lib/missionTheme";
 import { track } from "@/lib/analytics";
 import { AppShell } from "@/components/layout/AppShell";
@@ -35,6 +36,11 @@ export default function MissionsPage() {
   const missions = res.data ?? null;
   const error = res.error;
   const load = res.reload;
+
+  const completedCount = missions ? missions.filter((m) => statusOf(m) === "completed").length : 0;
+  // Count the "complete" tally up on load so a returning learner sees their
+  // progress tick into place (snaps under reduced motion via useCountUp).
+  const shownComplete = useCountUp(completedCount);
 
   // The one mission to guide the child toward: the one in progress, else the
   // first not-yet-completed one. Gets the "Start here" highlight. -1 = none.
@@ -69,14 +75,10 @@ export default function MissionsPage() {
               <p className="text-base font-medium">
                 Pick a mission and let&apos;s explore AI together! 🚀
               </p>
-              {(() => {
-                const completed = missions.filter((m) => statusOf(m) === "completed").length;
-                return (
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-secondary px-3 py-1 text-sm font-medium text-secondary-foreground">
-                    ⭐ {completed} of {missions.length} complete
-                  </span>
-                );
-              })()}
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-secondary px-3 py-1 text-sm font-medium text-secondary-foreground">
+                <span className="inline-block animate-badge-spin" aria-hidden>⭐</span>
+                {shownComplete} of {missions.length} complete
+              </span>
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

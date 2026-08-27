@@ -100,7 +100,7 @@ export function MissionCard({
           "group flex h-full flex-col gap-4 p-5",
           locked && "opacity-70",
           highlightNext && "ring-2 ring-primary/40",
-          index !== undefined && "animate-rise-in",
+          index !== undefined && "animate-card-flip-in",
           className,
         )}
         style={index !== undefined ? { animationDelay: `${index * 60}ms` } : undefined}
@@ -117,7 +117,7 @@ export function MissionCard({
           )}
           <div
             className={cn(
-              "flex size-12 shrink-0 items-center justify-center rounded-xl text-2xl transition-transform duration-200 ease-out",
+              "relative flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-xl text-2xl transition-transform duration-200 ease-out",
               locked
                 ? "bg-muted text-muted-foreground"
                 : "text-primary-foreground group-hover:scale-110 group-hover:-rotate-3",
@@ -129,11 +129,18 @@ export function MissionCard({
               <Lock className="size-5" />
             ) : (
               <span
-                className="inline-block animate-float group-hover:animate-wiggle"
+                className="inline-block animate-float group-hover:animate-coin-flip"
                 style={{ animationDelay: `${(index ?? 0) * 120}ms` }}
               >
                 {character}
               </span>
+            )}
+            {/* Completed tiles catch a slow gold sheen sweeping across them. */}
+            {status === "completed" && (
+              <span
+                className="pointer-events-none absolute inset-y-0 left-0 w-1/2 bg-gradient-to-r from-transparent via-white/45 to-transparent animate-tile-shimmer"
+                aria-hidden
+              />
             )}
           </div>
           {/* Sparkles: pop on hover for a bit of life. */}
@@ -180,7 +187,7 @@ export function MissionCard({
       </div>
 
       {status === "in_progress" && (
-        <ProgressBar value={progress} tone="brand" label="Progress" showValue />
+        <ProgressBar value={progress} tone="brand" label="Progress" showValue animateOnMount />
       )}
 
       <div className="flex items-center gap-3 text-xs font-medium text-muted-foreground">
@@ -198,7 +205,7 @@ export function MissionCard({
         variant={meta.ctaVariant}
         onClick={onAction}
         disabled={locked}
-        className="w-full"
+        className={cn("w-full", highlightNext && "animate-cta-glow")}
       >
         <CtaIcon className="size-4" aria-hidden />
         {meta.cta}
