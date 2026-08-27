@@ -16,6 +16,7 @@ export * from "./domain.js";
 export * from "./commands.js";
 export * from "./engine.js";
 export * from "./parent.js";
+export * from "./leaderboard.js";
 export * from "./recommendation.js";
 export * from "./ai.js";
 export * from "./api.js";

@@ -23,7 +23,7 @@ import { LoadingState } from "@/components/ui/loading-state";
  *
  * Public:   /  /login  /signup  /design
  * Parent:   /create-child  /parent  /parent/progress  /parent/feedback
- * Child:    /child  /missions  /missions/:missionId  /missions/:missionId/complete
+ * Child:    /child  /missions  /group  /missions/:missionId  /missions/:missionId/complete
  */
 const LoginPage = lazy(() => import("@/pages/LoginPage"));
 const SignupPage = lazy(() => import("@/pages/SignupPage"));
@@ -34,6 +34,7 @@ const ParentProgressPage = lazy(() => import("@/pages/ParentProgressPage"));
 const ParentFeedbackPage = lazy(() => import("@/pages/ParentFeedbackPage"));
 const ChildHomePage = lazy(() => import("@/pages/ChildHomePage"));
 const MissionsPage = lazy(() => import("@/pages/MissionsPage"));
+const GroupPage = lazy(() => import("@/pages/GroupPage"));
 const MissionDetailPage = lazy(() => import("@/pages/MissionDetailPage"));
 const MissionCompletePage = lazy(() => import("@/pages/MissionCompletePage"));
 
@@ -74,6 +75,7 @@ export const router = createBrowserRouter([
         children: [
           { path: "/child", element: lazyRoute(<ChildHomePage />) },
           { path: "/missions", element: lazyRoute(<MissionsPage />) },
+          { path: "/group", element: lazyRoute(<GroupPage />) },
           { path: "/missions/:missionId", element: lazyRoute(<MissionDetailPage />) },
           { path: "/missions/:missionId/complete", element: lazyRoute(<MissionCompletePage />) },
         ],

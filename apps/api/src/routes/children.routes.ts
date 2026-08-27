@@ -13,6 +13,7 @@ import {
   getChildBadges,
   getChildRecommendationHandler,
 } from "../controllers/mission.controller.js";
+import { getChildLeaderboard } from "../controllers/leaderboard.controller.js";
 
 /**
  * Child (learner) routes. Ownership is enforced on EVERY endpoint:
@@ -53,6 +54,15 @@ childrenRouter.get(
   requireAuth,
   requireChildOwnership("childId"),
   getChildRecommendationHandler,
+);
+
+// The family leaderboard (this child's siblings), ownership-gated so the
+// standings are scoped to the child's own parent.
+childrenRouter.get(
+  "/:childId/leaderboard",
+  requireAuth,
+  requireChildOwnership("childId"),
+  getChildLeaderboard,
 );
 
 childrenRouter.get("/:id", requireAuth, requireChildOwnership("id"), getChild);

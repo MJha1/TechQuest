@@ -11,6 +11,7 @@ import type {
   CompleteResult,
   BadgeStatus,
   ParentDashboard,
+  FamilyLeaderboard,
   Recommendation,
   HintResult,
   ActivityInfo,
@@ -131,6 +132,10 @@ export const getChildRecommendation = (childId: string): Promise<Recommendation>
 /** A child's badges (earned + locked). */
 export const listChildBadges = (childId: string): Promise<BadgeStatus[]> =>
   request<BadgeStatus[]>(`/api/children/${childId}/badges`);
+
+/** The family leaderboard (this child's siblings), ranked + per-mission. */
+export const getFamilyLeaderboard = (childId: string): Promise<FamilyLeaderboard> =>
+  request<FamilyLeaderboard>(`/api/children/${childId}/leaderboard`);
 
 /** The parent's educational dashboard (all their children). */
 export const getParentDashboard = (): Promise<ParentDashboard> =>

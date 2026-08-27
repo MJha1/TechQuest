@@ -41,6 +41,7 @@ export interface EventPropertyMap {
   child_created: { childRef: string; ageBand: AgeBand; interestCount: number };
   // Retention
   child_home_viewed: { childRef: string };
+  group_viewed: { childRef: string };
   // Engagement
   mission_viewed: { missionSlug: string };
   mission_started: { childRef: string; missionSlug: string };
@@ -73,6 +74,7 @@ export const EVENT_CATEGORY: Record<AnalyticsEvent, AnalyticsCategory> = {
   signup_completed: "Acquisition",
   child_created: "Activation",
   child_home_viewed: "Retention",
+  group_viewed: "Retention",
   mission_viewed: "Engagement",
   mission_started: "Engagement",
   question_answered: "Engagement",
