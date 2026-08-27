@@ -12,6 +12,7 @@ export function ProgressRing({
   size = 88,
   stroke = 5,
   color = "var(--color-primary)",
+  animateOnMount = false,
   className,
   children,
 }: {
@@ -23,10 +24,18 @@ export function ProgressRing({
   stroke?: number;
   /** Arc color (any CSS color; defaults to the brand primary). */
   color?: string;
+  /** Sweep the arc in from empty on first render (reduced-motion falls back to
+   *  an instant fill via the global transition guard). */
+  animateOnMount?: boolean;
   className?: string;
   children?: React.ReactNode;
 }) {
-  const pct = max > 0 ? Math.min(1, Math.max(0, value / max)) : 0;
+  // Start empty when animating, then move to `value` after paint so the CSS
+  // stroke-dashoffset transition sweeps the arc in.
+  const [shown, setShown] = React.useState(animateOnMount ? 0 : value);
+  React.useEffect(() => setShown(value), [value]);
+
+  const pct = max > 0 ? Math.min(1, Math.max(0, shown / max)) : 0;
   const r = (size - stroke) / 2;
   const circumference = 2 * Math.PI * r;
   const offset = circumference * (1 - pct);

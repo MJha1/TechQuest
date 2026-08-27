@@ -67,12 +67,11 @@ describe("ParentProgressPage", () => {
     renderPage();
 
     expect(await screen.findByRole("heading", { name: "Nova" })).toBeInTheDocument();
-    // XP and streak stats
-    expect(screen.getByText("XP")).toBeInTheDocument();
-    expect(screen.getByText("180")).toBeInTheDocument();
+    // XP (shown inside the Level ring) and the streak meter.
+    expect(screen.getByText(/180 XP/i)).toBeInTheDocument();
     expect(screen.getByText("Day streak")).toBeInTheDocument();
     expect(screen.getByText("3")).toBeInTheDocument();
-    // Missions progress
+    // Missions progress recap.
     expect(screen.getByText(/1 of 2 missions completed/i)).toBeInTheDocument();
     // Recent activity
     expect(screen.getByText("Recent Activity")).toBeInTheDocument();

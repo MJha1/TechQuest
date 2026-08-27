@@ -14,17 +14,18 @@ const canAnimate = () =>
 /**
  * Animate a number toward `target` (e.g. an XP total) for satisfying reward
  * feedback. Counts up from the previously shown value on change — and from 0 on
- * first mount, so a fresh reward screen ticks up. Snaps instantly under
- * prefers-reduced-motion (and in non-browser environments).
+ * first mount, so a fresh reward/progress screen ticks up. Snaps instantly when
+ * `enabled` is false, under prefers-reduced-motion, or in non-browser
+ * environments — so the rendered value is always the real total there.
  */
-export function useCountUp(target: number, durationMs = 700): number {
-  const animate = canAnimate();
+export function useCountUp(target: number, enabled = true, durationMs = 700): number {
+  const animate = enabled && canAnimate();
   const [display, setDisplay] = useState(() => (animate ? 0 : target));
   const fromRef = useRef(animate ? 0 : target);
   const rafRef = useRef<number | undefined>(undefined);
 
   useEffect(() => {
-    if (!canAnimate()) {
+    if (!enabled || !canAnimate()) {
       setDisplay(target);
       fromRef.current = target;
       return;
@@ -48,7 +49,7 @@ export function useCountUp(target: number, durationMs = 700): number {
     return () => {
       if (rafRef.current !== undefined) cancelAnimationFrame(rafRef.current);
     };
-  }, [target, durationMs]);
+  }, [target, enabled, durationMs]);
 
   return display;
 }
