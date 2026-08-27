@@ -1,8 +1,13 @@
 import { useEffect, useState } from "react";
 import type { ServedStep, AnswerResult, MissionStepType } from "@techquest/shared";
-import { CheckCircle2, XCircle, Sparkles, Check } from "lucide-react";
+import { CheckCircle2, XCircle, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Confetti } from "@/components/ui/confetti";
+import {
+  CHOICE_TEMPLATES,
+  DEFAULT_CHOICE_TEMPLATE,
+  type ChoiceTemplateId,
+} from "@/components/mission/templates";
 
 /**
  * Reusable, data-driven mission-step renderers.
@@ -56,6 +61,12 @@ export function stepMeta(step: ServedStep): StepMeta {
   return { kind, ...byType[step.type] };
 }
 
+/** Whether a step is answered by picking one option — the steps that support
+ *  the switchable interactive templates (Quiz / Open the box / etc.). */
+export function isChoiceStep(step: ServedStep): boolean {
+  return step.type === "CHOICE" || step.type === "PREDICTION";
+}
+
 /** Empty starting response. */
 export function initialResponse(): Record<string, unknown> {
   return {};
@@ -88,10 +99,19 @@ export interface StepActivityProps {
   disabled: boolean;
   /** Grading result for immediate feedback (null before answering). */
   result: AnswerResult | null;
+  /** Which interactive template to use for choice steps (ignored otherwise). */
+  template?: ChoiceTemplateId;
 }
 
 /** The center "current learning activity". Renders content, inputs, feedback. */
-export function StepActivity({ step, value, onChange, disabled, result }: StepActivityProps) {
+export function StepActivity({
+  step,
+  value,
+  onChange,
+  disabled,
+  result,
+  template = DEFAULT_CHOICE_TEMPLATE,
+}: StepActivityProps) {
   const meta = stepMeta(step);
   // Reward feedback: a confetti burst + a floating "+XP" chip fire when a
   // positive result arrives (a correct graded answer, or a completed open step).
@@ -127,7 +147,14 @@ export function StepActivity({ step, value, onChange, disabled, result }: StepAc
         )}
       </div>
 
-      <StepBody step={step} response={value} onChange={onChange} disabled={disabled} result={result} />
+      <StepBody
+        step={step}
+        response={value}
+        onChange={onChange}
+        disabled={disabled}
+        result={result}
+        template={template}
+      />
 
       {result && <Feedback result={result} />}
     </div>
@@ -174,12 +201,14 @@ function StepBody({
   onChange,
   disabled,
   result,
+  template,
 }: {
   step: ServedStep;
   response: Record<string, unknown>;
   onChange: (r: Record<string, unknown>) => void;
   disabled: boolean;
   result: AnswerResult | null;
+  template: ChoiceTemplateId;
 }) {
   switch (step.type) {
     case "INTRO":
@@ -208,65 +237,18 @@ function StepBody({
     case "CHOICE":
     case "PREDICTION": {
       const c = step.content as ChoiceContent;
-      const selected = response.optionId as string | undefined;
+      const entry = CHOICE_TEMPLATES.find((t) => t.id === template) ?? CHOICE_TEMPLATES[0];
+      const Template = entry.Component;
       return (
-        <fieldset className="space-y-3" disabled={disabled}>
-          <legend className="mb-3 text-base font-semibold">{c.prompt}</legend>
-          <div className="flex flex-col gap-3">
-            {c.options.map((opt, i) => {
-              const isSel = selected === opt.id;
-              // Once answered, the chosen card reflects the verdict: green when
-              // correct, a gentle red shake when not. Kind, never harsh.
-              const stateClass = isSel
-                ? result
-                  ? result.correct
-                    ? "border-success bg-success/10 shadow-sm"
-                    : "border-destructive bg-destructive/10 animate-shake"
-                  : "border-primary bg-primary/10 shadow-sm"
-                : "border-border";
-              return (
-                <label
-                  key={opt.id}
-                  className={cn(
-                    "group flex cursor-pointer items-center gap-4 rounded-2xl border-2 p-4 transition-all duration-150",
-                    "hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-md active:scale-[0.99]",
-                    "has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring",
-                    stateClass,
-                  )}
-                >
-                  <input
-                    type="radio"
-                    name={`step-${step.id}`}
-                    value={opt.id}
-                    checked={isSel}
-                    onChange={() => onChange({ optionId: opt.id })}
-                    className="sr-only"
-                  />
-                  <span
-                    className={cn(
-                      "flex size-12 shrink-0 items-center justify-center rounded-xl bg-secondary text-2xl transition-transform duration-200 group-hover:scale-110",
-                      !opt.emoji && "font-bold text-primary",
-                      isSel && "scale-110",
-                    )}
-                    aria-hidden
-                  >
-                    {opt.emoji ?? String.fromCharCode(65 + i)}
-                  </span>
-                  <span className="flex-1 text-sm font-medium sm:text-base">{opt.label}</span>
-                  <span
-                    className={cn(
-                      "flex size-6 shrink-0 items-center justify-center rounded-full border-2 transition-all duration-150",
-                      isSel ? "border-primary bg-primary text-primary-foreground" : "border-muted-foreground/40",
-                    )}
-                    aria-hidden
-                  >
-                    {isSel && <Check className="size-4" />}
-                  </span>
-                </label>
-              );
-            })}
-          </div>
-        </fieldset>
+        <Template
+          prompt={c.prompt}
+          options={c.options}
+          selected={response.optionId as string | undefined}
+          onSelect={(optionId) => onChange({ optionId })}
+          disabled={disabled}
+          result={result}
+          stepId={step.id}
+        />
       );
     }
 

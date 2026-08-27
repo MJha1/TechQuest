@@ -51,6 +51,7 @@ export interface EventPropertyMap {
     correct: boolean | null;
   };
   hint_requested: { childRef: string; missionSlug: string; stepType: string };
+  template_switched: { childRef: string; template: string };
   challenge_started: { childRef: string; missionSlug: string };
   challenge_completed: { childRef: string; missionSlug: string };
   // Learning
@@ -76,6 +77,7 @@ export const EVENT_CATEGORY: Record<AnalyticsEvent, AnalyticsCategory> = {
   mission_started: "Engagement",
   question_answered: "Engagement",
   hint_requested: "Engagement",
+  template_switched: "Engagement",
   challenge_started: "Engagement",
   challenge_completed: "Engagement",
   mission_completed: "Learning",

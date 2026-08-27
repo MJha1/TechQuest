@@ -279,6 +279,24 @@
   60%, 100% { transform: translateX(240%) skewX(-12deg); }
 }
 
+/* Flip tile ("Open the box") — a two-faced card on a perspective plane that
+   rotates to reveal its answer. The tile button supplies the `perspective`;
+   under reduced motion the global guard snaps the flip. */
+.flip-3d {
+  transform-style: preserve-3d;
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.flip-3d.is-open { transform: rotateY(180deg); }
+.flip-face {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.flip-back { transform: rotateY(180deg); }
+
+/* Spin the wheel — the rotation itself is set inline (JS-computed target angle);
+   this just gives it a long, satisfying ease-out. Reduced motion snaps it. */
+.wheel-spin { transition: transform 3.1s cubic-bezier(0.15, 0.9, 0.25, 1); }
+
 /* Pointer-driven 3D tilt (see components/motion/TiltCard.tsx). The rotation and
    lift come from CSS vars the component sets on pointer move; both default to a
    flat resting state, so with no pointer — or under reduced motion, where the

@@ -104,3 +104,46 @@ describe("StepActivity (data-driven, controlled)", () => {
     expect(screen.getByText("Let's learn")).toBeInTheDocument();
   });
 });
+
+describe("choice templates (same content, same graded answer)", () => {
+  const choiceStep = () =>
+    step({
+      type: "CHOICE",
+      title: "Pick one",
+      content: {
+        prompt: "Which helps?",
+        options: [
+          { id: "a", label: "One photo" },
+          { id: "b", label: "Many photos" },
+        ],
+      },
+    });
+
+  it("Open-the-box template reports the chosen option", () => {
+    const onChange = vi.fn();
+    render(
+      <StepActivity step={choiceStep()} value={{}} onChange={onChange} disabled={false} result={null} template="flip" />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: /open box 2/i }));
+    expect(onChange).toHaveBeenCalledWith({ optionId: "b" });
+  });
+
+  it("Bubble-pop template reports the chosen option", () => {
+    const onChange = vi.fn();
+    render(
+      <StepActivity step={choiceStep()} value={{}} onChange={onChange} disabled={false} result={null} template="pop" />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: /choose: many photos/i }));
+    expect(onChange).toHaveBeenCalledWith({ optionId: "b" });
+  });
+
+  it("Spin-the-wheel template offers a spin and a tappable legend that reports the choice", () => {
+    const onChange = vi.fn();
+    render(
+      <StepActivity step={choiceStep()} value={{}} onChange={onChange} disabled={false} result={null} template="wheel" />,
+    );
+    expect(screen.getByRole("button", { name: /spin/i })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /many photos/i }));
+    expect(onChange).toHaveBeenCalledWith({ optionId: "b" });
+  });
+});

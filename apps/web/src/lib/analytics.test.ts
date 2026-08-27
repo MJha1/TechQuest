@@ -20,9 +20,9 @@ const identify = posthog.identify as unknown as ReturnType<typeof vi.fn>;
 afterAll(() => vi.unstubAllEnvs());
 
 describe("event catalog", () => {
-  it("categorizes all 17 tracked events", () => {
+  it("categorizes all 18 tracked events", () => {
     const events = Object.keys(EVENT_CATEGORY) as AnalyticsEvent[];
-    expect(events).toHaveLength(17);
+    expect(events).toHaveLength(18);
     const categories = new Set(Object.values(EVENT_CATEGORY));
     expect(categories).toEqual(
       new Set(["Acquisition", "Activation", "Engagement", "Retention", "Learning", "Parent Value"]),

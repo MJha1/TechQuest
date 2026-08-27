@@ -10,12 +10,26 @@ import { LoadingState } from "@/components/ui/loading-state";
 import { ErrorState, CHILD_ERROR } from "@/components/ui/error-state";
 import { MissionPlayerLayout } from "@/components/mission/MissionPlayerLayout";
 import { MissionSidePanel } from "@/components/mission/MissionSidePanel";
+import { ConceptRail } from "@/components/mission/ConceptRail";
+import { TemplateSwitcher } from "@/components/mission/TemplateSwitcher";
+import { asChoiceTemplate, type ChoiceTemplateId } from "@/components/mission/templates";
 import {
   StepActivity,
   canSubmit,
   initialResponse,
+  isChoiceStep,
   stepMeta,
 } from "@/components/mission/StepRenderer";
+
+/** Persist the child's preferred choice template across steps and sessions. */
+const TEMPLATE_KEY = "bb:choiceTemplate";
+function loadTemplate(): ChoiceTemplateId {
+  try {
+    return asChoiceTemplate(localStorage.getItem(TEMPLATE_KEY));
+  } catch {
+    return asChoiceTemplate(null);
+  }
+}
 
 /** Best-effort description of the child's current attempt, for the hint prompt. */
 function attemptText(content: unknown, value: Record<string, unknown>): string {
@@ -57,6 +71,17 @@ export default function MissionDetailPage() {
   const [submitting, setSubmitting] = useState(false);
   const [xp, setXp] = useState(child.xp);
   const [level, setLevel] = useState(child.level);
+  const [template, setTemplate] = useState<ChoiceTemplateId>(loadTemplate);
+
+  function chooseTemplate(id: ChoiceTemplateId) {
+    setTemplate(id);
+    try {
+      localStorage.setItem(TEMPLATE_KEY, id);
+    } catch {
+      // best-effort: a private window without storage just won't remember it
+    }
+    track("template_switched", { childRef: child.id, template: id });
+  }
 
   function load() {
     setError(false);
@@ -111,6 +136,7 @@ export default function MissionDetailPage() {
   const meta = stepMeta(step);
   const isLast = index === steps.length - 1;
   const answered = result !== null;
+  const showSwitcher = isChoiceStep(step);
 
   const doneStepIds = new Set<string>();
   steps.forEach((s, i) => i < index && doneStepIds.add(s.id));
@@ -212,7 +238,11 @@ export default function MissionDetailPage() {
           subtitle={state.mission.subtitle}
           steps={steps}
           currentStepId={step.id}
+          currentStepIndex={index}
           doneStepIds={doneStepIds}
+          template={template}
+          onTemplateChange={chooseTemplate}
+          showTemplateSwitcher={showSwitcher}
           hint={meta.hint}
           onShowHint={() =>
             track("hint_requested", {
@@ -238,9 +268,26 @@ export default function MissionDetailPage() {
       }
       footer={footer}
     >
+      {/* AI-concept journey — lights up as the child moves through the steps. */}
+      <ConceptRail concept={state.mission.concept} stepIndex={index} stepCount={steps.length} />
+
+      {/* Narrow screens have no side panel, so surface the template switcher here. */}
+      {showSwitcher && (
+        <div className="mb-5 xl:hidden">
+          <TemplateSwitcher value={template} onChange={chooseTemplate} />
+        </div>
+      )}
+
       {/* Keyed so each step's activity re-plays the entrance as the child advances. */}
       <div key={step.id} className="animate-rise-in">
-        <StepActivity step={step} value={value} onChange={setValue} disabled={answered} result={result} />
+        <StepActivity
+          step={step}
+          value={value}
+          onChange={setValue}
+          disabled={answered}
+          result={result}
+          template={template}
+        />
       </div>
     </MissionPlayerLayout>
   );
