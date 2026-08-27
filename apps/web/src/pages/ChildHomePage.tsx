@@ -14,6 +14,8 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ProgressBar } from "@/components/ui/progress-bar";
+import { ProgressRing } from "@/components/ui/progress-ring";
+import { DidYouKnowCard } from "@/components/child/DidYouKnowCard";
 import { LoadingState } from "@/components/ui/loading-state";
 import { ErrorState, CHILD_ERROR } from "@/components/ui/error-state";
 import { XPDisplay } from "@/components/XPDisplay";
@@ -155,19 +157,40 @@ export default function ChildHomePage() {
         {!error && missions !== null && (
           <>
             {/* Today's Mission — the hero + primary CTA. */}
-            <Card className="animate-rise-in">
+            <Card className="relative overflow-hidden animate-rise-in">
+              {/* Subtle decorative swirl (self-contained, faint). */}
+              <svg
+                className="pointer-events-none absolute -right-8 -top-8 size-40 text-primary/[0.06]"
+                viewBox="0 0 200 200"
+                fill="none"
+                aria-hidden
+              >
+                <path d="M10 110 Q55 25 100 100 T190 95" stroke="currentColor" strokeWidth="12" strokeLinecap="round" />
+                <path d="M30 150 Q75 85 120 150 T210 145" stroke="currentColor" strokeWidth="9" strokeLinecap="round" />
+                <circle cx="158" cy="45" r="9" fill="currentColor" />
+              </svg>
               <CardHeader>
                 <p className="text-xs font-semibold uppercase tracking-wide text-primary">
                   Today's Mission
                 </p>
                 <div className="flex items-center gap-4">
-                  {todays && (
-                    <MissionCharacter
-                      emoji={missionTheme(todays.mission.slug).emoji}
-                      gradient={missionTheme(todays.mission.slug).gradient}
-                      size="lg"
-                    />
-                  )}
+                  {todays &&
+                    (todays.progress?.status === "IN_PROGRESS" && todays.totalSteps > 0 ? (
+                      // Circular progress ring around the character for the featured mission.
+                      <ProgressRing value={todays.completedSteps} max={todays.totalSteps}>
+                        <MissionCharacter
+                          emoji={missionTheme(todays.mission.slug).emoji}
+                          gradient={missionTheme(todays.mission.slug).gradient}
+                          size="lg"
+                        />
+                      </ProgressRing>
+                    ) : (
+                      <MissionCharacter
+                        emoji={missionTheme(todays.mission.slug).emoji}
+                        gradient={missionTheme(todays.mission.slug).gradient}
+                        size="lg"
+                      />
+                    ))}
                   <CardTitle className="text-2xl" style={{ fontFamily: "var(--font-display)" }}>
                     {todays ? todays.mission.title : "You've finished every mission! 🎉"}
                   </CardTitle>
@@ -177,18 +200,16 @@ export default function ChildHomePage() {
                 {todays ? (
                   <>
                     <p className="text-muted-foreground">{todays.mission.concept}</p>
-                    {todays.progress?.status === "IN_PROGRESS" && (
-                      <ProgressBar
-                        value={todays.completedSteps}
-                        max={todays.totalSteps}
-                        tone="brand"
-                        label="Your progress"
-                        showValue
-                      />
+                    {todays.progress?.status === "IN_PROGRESS" && todays.totalSteps > 0 && (
+                      // The ring shows progress visually; this caption carries it for screen readers.
+                      <p className="text-sm font-semibold text-primary">
+                        {todays.completedSteps} of {todays.totalSteps} steps done — keep going!
+                      </p>
                     )}
                     <Button
                       size="lg"
                       variant="accent"
+                      className="animate-cta-glow"
                       onClick={() => navigate(`/missions/${todays.mission.id}`)}
                     >
                       <Play className="size-4" />
@@ -220,6 +241,9 @@ export default function ChildHomePage() {
                 />
               </CardContent>
             </Card>
+
+            {/* A dose of curiosity — one true tech/AI fact per visit. */}
+            <DidYouKnowCard className="animate-rise-in [animation-delay:240ms]" />
 
             {/* Recommended next mission. */}
             {recommended && (
