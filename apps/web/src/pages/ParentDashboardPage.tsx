@@ -1,16 +1,18 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { UserPlus, Play, Users, Lightbulb, MessageCircleQuestion, Clock, GraduationCap } from "lucide-react";
+import { UserPlus, Play, Users, Lightbulb, MessageCircleQuestion, Clock, GraduationCap, CheckCircle2, Award } from "lucide-react";
 import type { ParentChildDashboard, ParentDashboard } from "@techquest/shared";
 import { useChildContext } from "@/context/ChildContext";
 import { parentNav } from "@/lib/nav";
 import { getParentDashboard } from "@/lib/api";
 import { track } from "@/lib/analytics";
+import { cn } from "@/lib/utils";
 import { AppShell } from "@/components/layout/AppShell";
 import { SignOutButton } from "@/components/SignOutButton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ProgressBar } from "@/components/ui/progress-bar";
+import { ProgressRing } from "@/components/ui/progress-ring";
+import { WeeklyActivity } from "@/components/parent/WeeklyActivity";
 import { LoadingState } from "@/components/ui/loading-state";
 import { ErrorState } from "@/components/ui/error-state";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -24,13 +26,38 @@ function timeAgo(iso: string): string {
   return new Date(iso).toLocaleDateString(undefined, { month: "short", day: "numeric" });
 }
 
-function Stat({ label, value }: { label: string; value: string | number }) {
+/** A single progress "meter": a colored ring with a value in the middle. */
+function RingStat({
+  value,
+  max,
+  color,
+  center,
+  label,
+  hint,
+}: {
+  value: number;
+  max: number;
+  color: string;
+  center: React.ReactNode;
+  label: string;
+  hint: string;
+}) {
   return (
-    <div className="rounded-lg border border-border p-3">
+    <div className="flex flex-col items-center gap-2" title={hint}>
+      <ProgressRing value={value} max={max} size={96} stroke={8} color={color}>
+        <div className="text-center leading-none">{center}</div>
+      </ProgressRing>
       <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</p>
-      <p className="mt-1 text-xl font-semibold tabular-nums">{value}</p>
     </div>
   );
+}
+
+/** Icon + status color for a recent-activity row (color is always paired with an icon). */
+function activityMeta(label: string) {
+  const l = label.toLowerCase();
+  if (l.startsWith("completed")) return { Icon: CheckCircle2, color: "text-success", ring: "bg-success/15" };
+  if (l.startsWith("earned") || l.includes("badge")) return { Icon: Award, color: "text-xp", ring: "bg-xp/15" };
+  return { Icon: Play, color: "text-info", ring: "bg-info/15" }; // started / default
 }
 
 /** One child's educational summary. Calm and informative — not gamified. */
@@ -44,32 +71,86 @@ function ChildDashboard({
   return (
     <section className="space-y-4">
       <div className="flex items-center justify-between gap-3">
-        <h2 className="text-xl font-semibold">{child.nickname}</h2>
+        <h2 className="flex items-center gap-2 text-xl font-semibold">
+          <span className="text-2xl" aria-hidden>{child.avatar ?? "🚀"}</span>
+          {child.nickname}
+        </h2>
         <Button size="sm" variant="outline" onClick={onEnter}>
           <Play className="size-4" /> Enter learning space
         </Button>
       </div>
 
-      {/* Learning Progress */}
+      {/* Learning Progress — visual meters, a weekly activity strip, and the
+          concepts explored. Kid-friendly, but grounded only in real data. */}
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Learning Progress</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <ProgressBar
-            value={child.missionsCompleted}
-            max={Math.max(child.totalMissions, 1)}
-            tone="success"
-            label={`${child.missionsCompleted} of ${child.totalMissions} missions completed`}
-            showValue
-          />
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-            <Stat label="Learning time" value={`~${child.learningMinutes} min`} />
-            <Stat label="Level" value={child.level} />
-            <Stat label="XP" value={child.xp} />
-            <Stat label="Day streak" value={child.streak} />
-            <Stat label="Concepts learned" value={child.conceptsLearned.length} />
+        <CardContent className="space-y-5">
+          {/* Meters */}
+          <div className="flex flex-wrap items-start justify-center gap-6 sm:justify-around">
+            <RingStat
+              label="Missions"
+              value={child.missionsCompleted}
+              max={Math.max(child.totalMissions, 1)}
+              color="var(--color-success)"
+              hint={`${child.missionsCompleted} of ${child.totalMissions} missions completed`}
+              center={
+                <>
+                  <span className="text-2xl font-bold tabular-nums">{child.missionsCompleted}</span>
+                  <span className="text-sm text-muted-foreground">/{child.totalMissions}</span>
+                </>
+              }
+            />
+            <RingStat
+              label="Level"
+              value={child.xp % 100}
+              max={100}
+              color="var(--color-xp)"
+              hint={`Level ${child.level} · ${child.xp} XP · ${100 - (child.xp % 100)} XP to the next level`}
+              center={
+                <>
+                  <span className="text-2xl font-bold tabular-nums">{child.level}</span>
+                  <span className="mt-0.5 block text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+                    {child.xp} XP
+                  </span>
+                </>
+              }
+            />
+            {/* Streak has no denominator, so a solid badge — not a false ring. */}
+            <div className="flex flex-col items-center gap-2" title={`${child.streak}-day streak`}>
+              <div className="flex size-24 flex-col items-center justify-center rounded-full bg-xp/15">
+                <span className="text-2xl" aria-hidden>🔥</span>
+                <span className="text-xl font-bold tabular-nums leading-none">{child.streak}</span>
+              </div>
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Day streak</p>
+            </div>
           </div>
+
+          {/* Plain-language recap (also the accessible source of the numbers). */}
+          <p className="text-center text-sm text-muted-foreground">
+            {child.missionsCompleted} of {child.totalMissions} missions completed · ~{child.learningMinutes} min learning time
+          </p>
+
+          <WeeklyActivity activity={child.recentActivity} />
+
+          {child.conceptsLearned.length > 0 && (
+            <div>
+              <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Concepts {child.nickname} explored
+              </p>
+              <ul className="flex flex-wrap gap-2">
+                {child.conceptsLearned.map((concept) => (
+                  <li
+                    key={concept}
+                    className="rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-sm font-medium"
+                  >
+                    💡 {concept}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -113,13 +194,19 @@ function ChildDashboard({
             {child.recentActivity.length === 0 ? (
               <p className="text-sm text-muted-foreground">No activity yet.</p>
             ) : (
-              <ul className="space-y-2">
-                {child.recentActivity.map((a, i) => (
-                  <li key={i} className="flex items-center justify-between gap-3 text-sm">
-                    <span>{a.label}</span>
-                    <span className="whitespace-nowrap text-xs text-muted-foreground">{timeAgo(a.at)}</span>
-                  </li>
-                ))}
+              <ul className="space-y-3">
+                {child.recentActivity.map((a, i) => {
+                  const { Icon, color, ring } = activityMeta(a.label);
+                  return (
+                    <li key={i} className="flex items-center gap-3 text-sm">
+                      <span className={cn("flex size-7 shrink-0 items-center justify-center rounded-full", ring)}>
+                        <Icon className={cn("size-4", color)} aria-hidden />
+                      </span>
+                      <span className="flex-1">{a.label}</span>
+                      <span className="whitespace-nowrap text-xs text-muted-foreground">{timeAgo(a.at)}</span>
+                    </li>
+                  );
+                })}
               </ul>
             )}
           </CardContent>

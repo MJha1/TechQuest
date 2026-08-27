@@ -11,6 +11,7 @@ export function ProgressRing({
   max = 100,
   size = 88,
   stroke = 5,
+  color = "var(--color-primary)",
   className,
   children,
 }: {
@@ -20,6 +21,8 @@ export function ProgressRing({
   size?: number;
   /** Ring thickness in px. */
   stroke?: number;
+  /** Arc color (any CSS color; defaults to the brand primary). */
+  color?: string;
   className?: string;
   children?: React.ReactNode;
 }) {
@@ -52,7 +55,7 @@ export function ProgressRing({
           strokeDasharray={circumference}
           strokeDashoffset={offset}
           className="transition-[stroke-dashoffset] duration-700 ease-out"
-          style={{ stroke: "var(--color-primary)" }}
+          style={{ stroke: color }}
         />
       </svg>
       {children}
