@@ -84,7 +84,7 @@ export default function MissionCompletePage() {
             <Confetti trigger={result.alreadyCompleted ? 0 : 1} pieces={28} />
             <CardContent className="flex flex-col items-center gap-4 p-8 text-center">
               <div
-                className="flex size-16 animate-pop items-center justify-center rounded-full text-primary-foreground"
+                className="flex size-16 animate-badge-spin items-center justify-center rounded-full text-primary-foreground"
                 style={{ backgroundImage: "var(--gradient-brand)" }}
                 aria-hidden
               >
@@ -117,7 +117,7 @@ export default function MissionCompletePage() {
                     {result.badges.map((slug, i) => (
                       <li
                         key={slug}
-                        className="flex animate-pop items-center gap-1.5 rounded-full bg-card px-3 py-1 text-sm font-medium shadow-sm"
+                        className="flex animate-badge-spin items-center gap-1.5 rounded-full bg-card px-3 py-1 text-sm font-medium shadow-sm"
                         style={{ animationDelay: `${120 + i * 90}ms` }}
                       >
                         <span aria-hidden>🏅</span> {badgeLabel(slug)}

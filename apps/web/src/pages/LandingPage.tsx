@@ -8,6 +8,7 @@ import { track } from "@/lib/analytics";
 import { cn } from "@/lib/utils";
 import { EmojiTile } from "@/components/landing/illustrations";
 import { TryMission } from "@/components/landing/TryMission";
+import { TiltCard } from "@/components/motion/TiltCard";
 import heroFamily from "@/assets/hero-family.png";
 import { RescueStory } from "@/components/landing/RescueStory";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -180,14 +181,15 @@ export default function LandingPage() {
           </p>
         </div>
 
-        {/* Hero scene: a parent and child exploring AI learning together. */}
-        <div className="relative mx-auto w-full">
+        {/* Hero scene: a parent and child exploring AI learning together. A
+            gentle pointer-parallax tilt gives it depth on desktop. */}
+        <TiltCard className="relative mx-auto w-full" max={6}>
           <img
             src={heroFamily}
             alt="A parent and child smiling at a laptop showing a colorful, kid-friendly AI learning app, with a friendly robot mascot alongside."
             className="w-full rounded-2xl shadow-xl ring-1 ring-border"
           />
-        </div>
+        </TiltCard>
       </section>
 
       {/* "To the rescue" story — the emotional hook */}
@@ -206,19 +208,21 @@ export default function LandingPage() {
             { emoji: "🧠", label: "Learn AI", caption: "How it really works." },
             { emoji: "👀", label: "Parents follow", caption: "See every step." },
           ].map((s, i) => (
-            <Card key={s.label} interactive className="group relative">
-              <CardContent className="p-5 text-center">
-                <span className="absolute right-3 top-3 text-xs font-bold text-muted-foreground">
-                  {i + 1}
-                </span>
-                <EmojiTile
-                  emoji={s.emoji}
-                  label={s.label}
-                  caption={s.caption}
-                  className="[&>span]:inline-block [&>span]:transition-transform [&>span]:duration-200 group-hover:[&>span]:scale-125"
-                />
-              </CardContent>
-            </Card>
+            <TiltCard key={s.label}>
+              <Card interactive className="group relative">
+                <CardContent className="p-5 text-center">
+                  <span className="absolute right-3 top-3 text-xs font-bold text-muted-foreground">
+                    {i + 1}
+                  </span>
+                  <EmojiTile
+                    emoji={s.emoji}
+                    label={s.label}
+                    caption={s.caption}
+                    className="[&>span]:inline-block [&>span]:transition-transform [&>span]:duration-200 group-hover:[&>span]:scale-125"
+                  />
+                </CardContent>
+              </Card>
+            </TiltCard>
           ))}
         </div>
       </Section>
@@ -245,9 +249,9 @@ export default function LandingPage() {
           ].map((c) => (
             <div
               key={c.label}
-              className="flex items-center gap-3 rounded-xl border border-border p-4 transition-colors hover:border-primary/40 hover:bg-card"
+              className="group flex items-center gap-3 rounded-xl border border-border p-4 transition-colors hover:border-primary/40 hover:bg-card"
             >
-              <span className="text-3xl" aria-hidden>{c.emoji}</span>
+              <span className="inline-block text-3xl group-hover:animate-coin-flip" aria-hidden>{c.emoji}</span>
               <span className="text-sm font-semibold">{c.label}</span>
             </div>
           ))}
@@ -264,11 +268,13 @@ export default function LandingPage() {
               { emoji: "💬", label: "Talk at home", caption: "Simple prompts." },
               { emoji: "🏆", label: "Badges", caption: "Rewards for real progress." },
             ].map((p) => (
-              <Card key={p.label} interactive>
-                <CardContent className="p-5 text-center">
-                  <EmojiTile emoji={p.emoji} label={p.label} caption={p.caption} />
-                </CardContent>
-              </Card>
+              <TiltCard key={p.label}>
+                <Card interactive>
+                  <CardContent className="p-5 text-center">
+                    <EmojiTile emoji={p.emoji} label={p.label} caption={p.caption} />
+                  </CardContent>
+                </Card>
+              </TiltCard>
             ))}
           </div>
         </Section>

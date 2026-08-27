@@ -1,6 +1,7 @@
 import { Lock, Play, Check, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
+import { TiltCard } from "@/components/motion/TiltCard";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ProgressBar } from "@/components/ui/progress-bar";
@@ -92,18 +93,19 @@ export function MissionCard({
   const highlightNext = isNext && !locked;
 
   return (
-    <Card
-      interactive={!locked}
-      className={cn(
-        "group flex flex-col gap-4 p-5",
-        locked && "opacity-70",
-        highlightNext && "ring-2 ring-primary/40",
-        index !== undefined && "animate-rise-in",
-        className,
-      )}
-      style={index !== undefined ? { animationDelay: `${index * 60}ms` } : undefined}
-      aria-label={`${title} — ${meta.label}`}
-    >
+    <TiltCard className="h-full">
+      <Card
+        interactive={!locked}
+        className={cn(
+          "group flex h-full flex-col gap-4 p-5",
+          locked && "opacity-70",
+          highlightNext && "ring-2 ring-primary/40",
+          index !== undefined && "animate-rise-in",
+          className,
+        )}
+        style={index !== undefined ? { animationDelay: `${index * 60}ms` } : undefined}
+        aria-label={`${title} — ${meta.label}`}
+      >
       <div className="flex items-start justify-between gap-3">
         <div className="relative">
           {/* Pulsing ring: draws the eye to the recommended next mission. */}
@@ -201,6 +203,7 @@ export function MissionCard({
         <CtaIcon className="size-4" aria-hidden />
         {meta.cta}
       </Button>
-    </Card>
+      </Card>
+    </TiltCard>
   );
 }

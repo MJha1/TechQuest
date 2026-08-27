@@ -50,8 +50,12 @@ export function RescueStory({
         <span className="pointer-events-none absolute right-4 top-3 animate-float text-2xl" aria-hidden>✨</span>
         <span className="pointer-events-none absolute bottom-3 left-4 animate-float text-xl" style={{ animationDelay: "0.9s" }} aria-hidden>🚀</span>
 
-        <div className="mx-auto w-28">
-          <RobotMascot className="w-full animate-float" />
+        {/* Idle float on the wrapper; the mascot itself "boops" — grows and
+            tilts — when a parent or curious child points at it. */}
+        <div className="mx-auto w-28 animate-float">
+          <div className="group">
+            <RobotMascot className="w-full transition-transform duration-300 ease-out group-hover:-rotate-3 group-hover:scale-110" />
+          </div>
         </div>
         <p className="mt-2 text-xs font-semibold uppercase tracking-wide text-primary">
           Here&apos;s the fix
